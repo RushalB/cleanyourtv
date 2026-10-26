@@ -70,6 +70,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -1650,6 +1651,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }, "AndroidBridge");
 
         dashboardWebView.setWebViewClient(new WebViewClient());
+        dashboardWebView.setWebChromeClient(new WebChromeClient());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            WebView.setWebContentsDebuggingEnabled(true);
+        }
         dashboardWebView.loadUrl("file:///android_asset/dashboard/dashboard.html");
         dashboardLoaded = true;
     }
@@ -1662,6 +1667,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             dashboardWebView.evaluateJavascript("if(typeof renderTodos === 'function') renderTodos();", null);
         }
         hideGlass();
+        dashboardOverlay.bringToFront();
         dashboardOverlay.setVisibility(View.VISIBLE);
         dashboardOverlay.setAlpha(0f);
         dashboardOverlay.animate().alpha(1f).setDuration(220).withEndAction(() -> {

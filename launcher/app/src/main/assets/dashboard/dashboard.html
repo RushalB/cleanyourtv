@@ -2,18 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=1920, initial-scale=1.0">
+  <meta name="viewport" content="width=1920, initial-scale=1.0, user-scalable=no">
   <title>Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
     body, html {
       margin: 0;
       padding: 0;
       width: 1920px;
       height: 1080px;
-      overflow: hidden;
+      max-width: 1920px;
+      max-height: 1080px;
+      overflow: hidden !important;
       background: transparent !important;
       font-family: 'Outfit', system-ui, -apple-system, sans-serif;
     }
@@ -23,26 +28,88 @@
       position: relative;
       width: 1920px;
       height: 1080px;
+      max-width: 1920px;
+      max-height: 1080px;
+      overflow: hidden !important;
     }
     .dashboard-wallpaper {
       display: none !important;
     }
     .dashboard-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: auto 1fr;
-      gap: 24px;
-      padding: 48px 60px 48px 60px;
-      height: calc(1080px - 96px);
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      grid-template-rows: 515px 445px !important;
+      gap: 24px !important;
+      padding: 42px 56px 42px 56px !important;
+      width: 1920px !important;
+      height: 1080px !important;
+      max-height: 1080px !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+    }
+    .quad {
+      border-radius: 20px;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden !important;
       box-sizing: border-box;
+      height: 100% !important;
+      max-height: 100% !important;
+      background: rgba(14, 18, 24, 0.82) !important;
+      backdrop-filter: blur(20px) saturate(160%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.14) !important;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
     }
     .quad--top {
-      grid-column: 1 / -1;
+      grid-column: 1 / 3 !important;
+      height: 515px !important;
+    }
+    .quad--sw, .quad--se {
+      height: 445px !important;
+    }
+    .quad__header {
+      margin-bottom: 12px !important;
+    }
+    .todo-list.todo-list--grid {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      grid-auto-rows: min-content;
+      gap: 10px 20px;
+      overflow: hidden !important;
+      flex: 1;
+      align-content: start;
+      margin: 0;
+      padding: 0;
+    }
+    .todo-item {
+      cursor: pointer;
+      outline: none;
+      transition: all 0.15s ease;
+      min-height: 48px;
+      background: rgba(255, 255, 255, 0.08) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 12px;
+      padding: 10px 16px;
+    }
+    .todo-item:focus {
+      outline: 3px solid #E3D5CA !important;
+      background: rgba(255, 255, 255, 0.22) !important;
+      transform: scale(1.02);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    .todo-item__text {
+      color: #fff !important;
+      font-size: 16px !important;
+      font-weight: 500 !important;
+    }
+    .todo-item__meta {
+      color: rgba(255, 255, 255, 0.6) !important;
     }
     .dashboard-back-btn {
       position: absolute;
-      top: 48px;
-      right: 60px;
+      top: 42px;
+      right: 56px;
       z-index: 100;
       display: flex;
       align-items: center;
@@ -64,21 +131,64 @@
       outline: 3px solid rgba(255, 255, 255, 0.9);
       transform: scale(1.04);
     }
-    .todo-item {
-      cursor: pointer;
-      outline: none;
-      transition: all 0.15s ease;
+    .recipe-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: hidden !important;
+      flex: 1;
     }
-    .todo-item:focus {
-      outline: 3px solid #E3D5CA !important;
-      background: rgba(255, 255, 255, 0.22) !important;
-      transform: scale(1.02);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    .recipe-card {
+      background: rgba(255, 255, 255, 0.07) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      color: #fff !important;
+      padding: 8px 14px;
+      border-radius: 12px;
     }
-    .quad {
-      background: rgba(18, 22, 28, 0.72) !important;
-      backdrop-filter: blur(20px) saturate(160%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    .recipe-card__name {
+      color: #fff !important;
+      font-size: 15px !important;
+    }
+    .recipe-card__meta {
+      color: rgba(255, 255, 255, 0.65) !important;
+      font-size: 12px !important;
+    }
+    .recipe-card__time {
+      color: #E3D5CA !important;
+      background: rgba(227, 213, 202, 0.15) !important;
+    }
+    .calendar-events {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow: hidden !important;
+      flex: 1;
+    }
+    .calendar-event {
+      background: rgba(255, 255, 255, 0.06) !important;
+      border: 1px solid rgba(255, 255, 255, 0.06) !important;
+      color: #fff !important;
+      padding: 8px 14px;
+      border-radius: 12px;
+    }
+    .calendar-event__title {
+      color: #fff !important;
+      font-size: 15px !important;
+    }
+    .calendar-event__time {
+      color: #E3D5CA !important;
+      font-weight: 600 !important;
+    }
+    .calendar-event__duration {
+      color: rgba(255, 255, 255, 0.55) !important;
+      font-size: 12px !important;
+    }
+    .calendar-day-label {
+      color: rgba(255, 255, 255, 0.6) !important;
+      font-size: 12px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.1em !important;
+      margin: 4px 0 2px 0 !important;
     }
   </style>
 </head>

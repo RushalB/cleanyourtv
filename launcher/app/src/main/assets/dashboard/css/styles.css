@@ -943,24 +943,4 @@ body:has(#dashboard.active) .top-bar,
   animation: spin 0.5s var(--ease-out);
 }
 
-/* ── Responsive (preview on smaller screens) ───────────── */
-@media (max-width: 1200px) {
-  :root {
-    --app-tile-w: 140px;
-    --app-tile-h: 79px;
-  }
-  .top-bar { padding: 0 32px 12px; }
-  .app-section { padding: 0 32px; }
-  .dashboard-grid { padding: 90px 32px 30px; gap: 12px; }
-  .clock__time { font-size: 36px; }
-}
-
-@media (max-width: 800px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
-    overflow-y: auto;
-  }
-  .clock__divider { display: none; }
-  .clock__date { display: none; }
-}
+/* ── TV Screen (1920x1080 fixed) ───────────── */

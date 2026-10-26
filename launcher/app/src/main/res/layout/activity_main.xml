@@ -323,6 +323,13 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/btnDashboard"
+                    style="@style/TopButton"
+                    android:text="@string/dashboard"
+                    android:drawableStart="@drawable/ic_dashboard"
+                    android:nextFocusDown="@+id/grid" />
+
+                <TextView
                     android:id="@+id/btnInputs"
                     style="@style/TopButton"
                     android:text="@string/inputs"
@@ -401,4 +408,21 @@
         android:layout_height="10dp"
         android:alpha="0"
         android:importantForAccessibility="no" />
+
+    <!-- Embedded Full-Screen Dashboard View -->
+    <FrameLayout
+        android:id="@+id/dashboardOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:background="#D90B0E14"
+        android:focusable="true">
+
+        <WebView
+            android:id="@+id/dashboardWebView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
+    </FrameLayout>
 </FrameLayout>

@@ -1,0 +1,966 @@
+/* ═══════════════════════════════════════════════════════════
+   FireTV Dashboard — CleanYourTV Glass Theme
+   Inspired by GlassView.java: translucent glass slab with
+   sheen fill, top specular, crisp rim & outer glow.
+   Target: 1920×1080 (Full HD TV)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── CSS Custom Properties ─────────────────────────────── */
+:root {
+  /* Core palette — from CleanYourTV source:
+     glass_panel: gradient #F22A2A2E → #F5161618, stroke #33FFFFFF
+     tile_bg:     solid #FF1C1C1E
+     pill_bg:     gradient #2EFFFFFF → #14FFFFFF, stroke #38FFFFFF
+     GlassView:   fill LinearGradient 0x3DFFFFFF → 0x12FFFFFF
+                   specular 0x66FFFFFF → 0x00FFFFFF (top 45%)
+                   rim 0xCCFFFFFF 1.5dp
+                   glow 12 rings, alpha 0x30                        */
+
+  --bg-black:       #000000;
+  --bg-deep:        #0A0A0F;
+
+  /* Glass panel (from glass_panel.xml) */
+  --glass-start:    rgba(42, 42, 46, 0.95);   /* #F22A2A2E */
+  --glass-end:      rgba(22, 22, 24, 0.96);   /* #F5161618 */
+  --glass-border:   rgba(255, 255, 255, 0.20); /* #33FFFFFF */
+
+  /* Tile bg */
+  --tile-bg:        #1C1C1E;
+
+  /* Pill (frosted buttons) */
+  --pill-start:     rgba(255, 255, 255, 0.18); /* #2EFFFFFF */
+  --pill-end:       rgba(255, 255, 255, 0.08); /* #14FFFFFF */
+  --pill-border:    rgba(255, 255, 255, 0.22); /* #38FFFFFF */
+  --pill-focused:   rgba(255, 255, 255, 0.96); /* #F5FFFFFF */
+
+  /* Glass slab (GlassView fills) */
+  --slab-fill-top:    rgba(255, 255, 255, 0.24);  /* 0x3D */
+  --slab-fill-bottom: rgba(255, 255, 255, 0.07);  /* 0x12 */
+  --slab-specular:    rgba(255, 255, 255, 0.40);   /* 0x66 */
+  --slab-rim:         rgba(255, 255, 255, 0.80);   /* 0xCC */
+  --slab-glow:        rgba(255, 255, 255, 0.19);   /* 0x30 */
+
+  /* Coolors palette — warm earthy neutrals
+     #EDEDE9 (parchment) · #D6CCC2 (taupe) · #F5EBE0 (cream) · #E3D5CA (sand) · #D5BDAF (rose taupe) */
+  --c-parchment:      #EDEDE9;
+  --c-taupe:          #D6CCC2;
+  --c-cream:          #F5EBE0;
+  --c-sand:           #E3D5CA;
+  --c-rose-taupe:     #D5BDAF;
+
+  /* High contrast text for dark UI */
+  --text-bright:      #FFFFFF;
+  --text-primary:     #F5EBE0;  /* Cream */
+  --text-secondary:   #D6CCC2;  /* Taupe */
+  --text-muted:       rgba(214, 204, 194, 0.45);
+  --text-dim:         rgba(227, 213, 202, 0.70);
+  --text-dark:        #1A1615;
+
+  /* Sizing */
+  --topbar-height: 0px;  /* Removed — clock is inline like CleanYourTV */
+  --card-radius:   20px; /* glass_panel corners: 20dp */
+  --tile-radius:   16px; /* tile_bg corners: 16dp */
+  --pill-radius:   21px; /* pill_bg corners: 21dp */
+  --app-tile-w:    180px;
+  --app-tile-h:    101px;
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden !important;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  color: var(--text-primary);
+  background: var(--bg-black);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOP SECTION — Minimal Xbox Dashboard Bar
+   Left: Profile badge · Center: Quick nav pills · Right: Clock
+   ═══════════════════════════════════════════════════════════ */
+
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 56px 0;
+  z-index: 100;
+  background: transparent;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+.top-bar > * { pointer-events: auto; }
+
+/* Xbox Profile Badge (Top Left) */
+.xbox-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.xbox-avatar {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #107C10 0%, #159b15 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.xbox-avatar__dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background: #107C10;
+  border: 2px solid #000;
+  border-radius: 50%;
+}
+.xbox-profile__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.xbox-profile__name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #FFFFFF;
+  letter-spacing: 0.01em;
+}
+.xbox-profile__tag {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.02em;
+}
+
+/* Center Quick Nav Icons (Xbox Style) */
+.xbox-nav-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(18, 14, 28, 0.55);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 28px;
+  padding: 4px 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.xbox-nav-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+  outline: none;
+}
+.xbox-nav-btn svg {
+  stroke: currentColor;
+  transition: stroke 0.2s;
+}
+.xbox-nav-btn:hover,
+.xbox-nav-btn:focus,
+.xbox-nav-btn.active {
+  background: rgba(255, 255, 255, 0.24);
+  color: #FFFFFF;
+  transform: scale(1.08);
+}
+
+/* Right Status & Clock */
+.xbox-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #FFFFFF;
+}
+.xbox-status__icon {
+  opacity: 0.8;
+  display: flex;
+}
+.xbox-status__clock {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VIEWS
+   ═══════════════════════════════════════════════════════════ */
+
+.view {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  background: #000000;
+  z-index: 10;
+}
+.view.active {
+  display: block;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LAUNCHER VIEW — Pushed to Bottom (Wallpaper First)
+   ═══════════════════════════════════════════════════════════ */
+
+.wallpaper {
+  position: absolute;
+  inset: 0;
+  background: #000000 url('../images/enchanted_forest_bg.jpg') center center / cover no-repeat;
+  z-index: 0;
+  overflow: hidden;
+  transition: background-image 0.5s ease-in-out;
+}
+/* Bottom Scrim: Keeps the top 65% completely open and clear for the wallpaper! */
+.wallpaper__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(6, 5, 12, 0.94) 0%, rgba(6, 5, 12, 0.76) 24%, rgba(6, 5, 12, 0.22) 48%, transparent 68%);
+  pointer-events: none;
+}
+.wallpaper__glow {
+  position: absolute;
+  bottom: -50px;
+  left: 15%;
+  width: 1300px;
+  height: 550px;
+  border-radius: 50%;
+  filter: blur(140px);
+  background: radial-gradient(circle, rgba(139, 233, 253, 0.28) 0%, transparent 70%);
+  transition: background 0.4s var(--ease-out);
+  pointer-events: none;
+}
+
+/* Content pushed to the very bottom */
+.launcher__content--bottom {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 56px 36px;
+  box-sizing: border-box;
+  gap: 16px;
+}
+
+/* Hero App Info — Sitting just above the bottom row */
+.hero-app-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+.hero-app-title {
+  font-size: 34px;
+  font-weight: 600;
+  color: #FFFFFF;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.85);
+  transition: opacity 0.2s var(--ease-out);
+}
+.hero-app-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.72);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+.meta-tag {
+  background: rgba(255, 255, 255, 0.16);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #FFFFFF;
+}
+.meta-dot {
+  opacity: 0.5;
+}
+.meta-desc {
+  font-weight: 400;
+}
+
+/* Row 1: Primary Bottom App Row */
+.bottom-app-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 10px 4px 10px;
+  scroll-behavior: smooth;
+}
+.xbox-card {
+  flex: 0 0 168px;
+  height: 112px;
+  border-radius: 14px;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.25s var(--ease-spring), box-shadow 0.25s var(--ease-out);
+  outline: none;
+}
+.xbox-card__inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  position: relative;
+  transition: box-shadow 0.25s;
+}
+/* Specular sheen */
+.xbox-card__inner::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: 14px 14px 0 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+/* Xbox Luminous Focus Frame */
+.xbox-card.focused,
+.xbox-card:focus,
+.xbox-card:hover {
+  transform: scale(1.08);
+  z-index: 10;
+}
+.xbox-card.focused .xbox-card__inner,
+.xbox-card:focus .xbox-card__inner,
+.xbox-card:hover .xbox-card__inner {
+  box-shadow: 0 0 0 3px #107C10, 0 0 24px rgba(16, 124, 16, 0.7), 0 16px 40px rgba(0, 0, 0, 0.9);
+}
+.xbox-card.focused .xbox-card__inner::after,
+.xbox-card:focus .xbox-card__inner::after,
+.xbox-card:hover .xbox-card__inner::after {
+  opacity: 1;
+}
+
+/* Row 2: Secondary Utility Cards */
+.bottom-utility-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.util-card {
+  height: 72px;
+  border-radius: 14px;
+  background: rgba(22, 18, 32, 0.65);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 18px;
+  cursor: pointer;
+  transition: all 0.22s var(--ease-out);
+  outline: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+.util-card:hover,
+.util-card:focus {
+  background: rgba(36, 28, 52, 0.85);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
+}
+.util-card__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  flex-shrink: 0;
+}
+.util-card__icon--teal {
+  background: #156683;
+  color: #FFFFFF;
+}
+.util-card__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.util-card__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+.util-card__sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ── Floating Launcher Switcher Pill on Dashboard ── */
+.dashboard-back-btn {
+  position: absolute;
+  top: 26px;
+  right: 36px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 19px;
+  background: #FFFFFF;
+  border: 1px solid rgba(21, 102, 131, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  color: #156683;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.2s var(--ease-out);
+}
+.dashboard-back-btn:hover {
+  background: #156683;
+  color: #FFFFFF;
+  box-shadow: 0 6px 20px rgba(21, 102, 131, 0.25);
+  transform: translateY(-1px);
+}
+.dashboard-back-btn svg {
+  stroke: currentColor;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DASHBOARD VIEW
+   Glass panel quadrants (glass_panel.xml)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════
+   DASHBOARD VIEW — Botanical Linen Theme (Reference Matched)
+   Background: Botanical Eucalyptus on Warm Linen (#F8F4EC)
+   Cards: Clean Rounded White (#FFFFFF) with Soft Shadows
+   Accents: Deep Teal (#156683), Ice Blue (#D0E6F3)
+   List Rows: Soft Ice-Blue / Cool-Grey (#F0F3F8)
+   No Navbar: Full-screen 1080p layout
+   ═══════════════════════════════════════════════════════════ */
+
+/* Hide navbar completely when on dashboard */
+body:has(#dashboard.active) .top-bar,
+.top-bar.hidden {
+  display: none !important;
+}
+
+.dashboard-wallpaper {
+  position: absolute;
+  inset: 0;
+  background: #F8F4EC url('../images/botanical_bg.jpg') center center / cover no-repeat;
+  z-index: 0;
+}
+
+.dashboard-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1.15fr 0.85fr;
+  gap: 20px;
+  padding: 26px 36px 22px;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden !important;
+}
+
+/* ── Clean White Card ──────────────────────────────────── */
+.quad {
+  border-radius: 20px;
+  padding: 22px 28px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+  box-sizing: border-box;
+  height: 100%;
+  background: #FFFFFF;
+  color: #112028;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.02);
+  transition: transform 0.15s var(--ease-out);
+}
+.quad:hover {
+  transform: translateY(-2px);
+}
+
+/* ── Combined Top Panel: To-Do List (NW + NE) ───────────── */
+.quad--top,
+.quad--todos {
+  grid-column: 1 / 3;
+}
+
+/* ── Botanical Header Layout ───────────────────────────── */
+.quad__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+
+.quad__header-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.quad__title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pill-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: #156683;
+  color: #FFFFFF;
+  align-self: flex-start;
+  margin-bottom: 5px;
+}
+.pill-badge--warm {
+  background: #E8F1F5;
+  color: #156683;
+}
+
+.quad__title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #112028;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.quad__subtitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: #627584;
+  margin-top: 2px;
+}
+
+.quad__header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ── Buttons & Filter Segment Controls ─────────────────── */
+.btn-primary {
+  background: #156683;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+  box-shadow: 0 2px 6px rgba(21, 102, 131, 0.25);
+}
+.btn-primary:hover {
+  background: #10526B;
+  transform: translateY(-1px);
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid #D5DFE6;
+  background: #FFFFFF;
+  color: #156683;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.icon-btn:hover {
+  background: #F0F5F8;
+  border-color: #156683;
+}
+.icon-btn.spinning svg {
+  animation: spin 0.6s linear infinite;
+}
+
+.date-badge {
+  font-size: 13px;
+  font-weight: 700;
+  color: #156683;
+  background: #E8F1F5;
+  padding: 6px 14px;
+  border-radius: 10px;
+}
+
+.filter-pill-group {
+  display: flex;
+  border: 1px solid #D5DFE6;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #FFFFFF;
+}
+.filter-pill {
+  border: none;
+  background: transparent;
+  padding: 7px 15px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4B5E6D;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.filter-pill.active {
+  background: #D0E6F3;
+  color: #154E62;
+  font-weight: 700;
+}
+
+/* ── To-Do List Grid ───────────────────────────────────── */
+.todo-list.todo-list--grid {
+  list-style: none;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-rows: min-content;
+  gap: 8px 18px;
+  overflow: hidden !important;
+  flex: 1;
+  align-content: start;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  background: #F0F3F8;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+  min-height: 42px;
+}
+.todo-item:hover {
+  background: #E4ECF4;
+}
+
+.todo-item__check {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid #5A6D7C;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.todo-item__check svg {
+  width: 13px;
+  height: 13px;
+  stroke: #FFFFFF;
+  stroke-width: 3.5;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.15s;
+}
+
+.todo-item.done .todo-item__check {
+  background: #156683;
+  border-color: #156683;
+}
+.todo-item.done .todo-item__check svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.todo-item__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.todo-item__text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #12202A;
+  transition: all 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.todo-item.done .todo-item__text {
+  color: #8D9DAA;
+  text-decoration: line-through;
+}
+
+.todo-item__meta {
+  font-size: 11px;
+  font-weight: 500;
+  color: #627584;
+  margin-top: 1px;
+}
+
+.todo-item__tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  background: #D0E6F3;
+  color: #154E62;
+}
+.todo-item__tag--urgent {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+.todo-item__tag--archived {
+  background: #E2E8F0;
+  color: #475569;
+}
+.todo-item__tag--week {
+  background: #E0E7FF;
+  color: #3730A3;
+}
+
+.quad__status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #156683;
+  display: inline-block;
+  box-shadow: 0 0 6px rgba(21, 102, 131, 0.5);
+  vertical-align: middle;
+}
+.quad__status-dot.offline {
+  background: #B3261E;
+  box-shadow: 0 0 6px rgba(179, 38, 30, 0.5);
+}
+
+/* ── Recipe Cards ──────────────────────────────────────── */
+.recipe-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+  overflow: hidden !important;
+  justify-content: flex-start;
+}
+
+.recipe-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: #F0F3F8;
+  border: none;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.recipe-card:hover {
+  background: #E4ECF4;
+}
+
+.recipe-card__emoji {
+  font-size: 22px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #FFFFFF;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+}
+
+.recipe-card__info { flex: 1; min-width: 0; }
+.recipe-card__name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #112028;
+  margin-bottom: 1px;
+}
+.recipe-card__meta {
+  font-size: 12px;
+  color: #627584;
+  font-weight: 500;
+}
+
+.recipe-card__time {
+  font-size: 12px;
+  font-weight: 700;
+  color: #154E62;
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #D0E6F3;
+  border: none;
+}
+
+/* ── Calendar Events ───────────────────────────────────── */
+.calendar-events {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  overflow: hidden !important;
+  justify-content: flex-start;
+}
+
+.calendar-day-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #627584 !important;
+  padding: 4px 4px 2px;
+}
+.calendar-day-label:first-child { padding-top: 0; }
+
+.calendar-event {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  background: #F0F3F8;
+  border: none;
+  transition: background 0.15s;
+}
+.calendar-event:hover {
+  background: #E4ECF4;
+}
+
+.calendar-event__time {
+  font-size: 13px;
+  font-weight: 700;
+  color: #156683;
+  width: 72px;
+  flex-shrink: 0;
+}
+.calendar-event__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #156683;
+  flex-shrink: 0;
+}
+.calendar-event__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #112028;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.calendar-event__duration {
+  font-size: 11px;
+  font-weight: 700;
+  color: #627584;
+  background: #FFFFFF;
+  padding: 2px 7px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* ── Animations ────────────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.quad__refresh-btn.spinning svg {
+  animation: spin 0.5s var(--ease-out);
+}
+
+/* ── Responsive (preview on smaller screens) ───────────── */
+@media (max-width: 1200px) {
+  :root {
+    --app-tile-w: 140px;
+    --app-tile-h: 79px;
+  }
+  .top-bar { padding: 0 32px 12px; }
+  .app-section { padding: 0 32px; }
+  .dashboard-grid { padding: 90px 32px 30px; gap: 12px; }
+  .clock__time { font-size: 36px; }
+}
+
+@media (max-width: 800px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    overflow-y: auto;
+  }
+  .clock__divider { display: none; }
+  .clock__date { display: none; }
+}

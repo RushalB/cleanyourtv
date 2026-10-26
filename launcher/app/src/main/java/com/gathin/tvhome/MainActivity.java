@@ -69,6 +69,10 @@ import android.widget.RelativeLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 import androidx.dynamicanimation.animation.FloatPropertyCompat;
@@ -176,6 +180,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean advancedEffects;
     private TextView greeting;
     private View clockBlock;
+    private View btnDashboard;
+    private FrameLayout dashboardOverlay;
+    private WebView dashboardWebView;
+    private boolean dashboardLoaded = false;
     private View btnInputs;
     /** config show_inputs_pill: false keeps the Inputs pill hidden even when the TV has inputs. */
     private boolean showInputsPill = true;
@@ -700,6 +708,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             }
         }
 
+        btnDashboard = findViewById(R.id.btnDashboard);
+        if (btnDashboard != null) {
+            btnDashboard.setOnClickListener(v -> showDashboard());
+        }
+        initDashboard();
+
         btnInputs = findViewById(R.id.btnInputs);
         View btnSettings = findViewById(R.id.btnSettings);
         btnInputs.setOnClickListener(v -> showInputs());
@@ -777,18 +791,24 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         boolean rtlMenuBar = getResources().getBoolean(R.bool.rtl_menu_bar);
         View.OnKeyListener pillKeys = (v, keyCode, event) -> {
             if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_UP) return true;
+            if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                showDashboard();
+                return true;
+            }
             if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
                 // Back to the dock tile Up came from, not wherever the focus finder lands.
                 focusTile(singleRow ? lastFocused : lastFocused % COLUMNS);
                 return true;
             }
-            int firstButton = btnInputs.getVisibility() == View.VISIBLE ? R.id.btnInputs : firstTopButton().getId();
+            int firstButton = (btnDashboard != null && btnDashboard.getVisibility() == View.VISIBLE)
+                    ? R.id.btnDashboard
+                    : (btnInputs.getVisibility() == View.VISIBLE ? R.id.btnInputs : firstTopButton().getId());
             int leftButton = rtlMenuBar ? R.id.btnSettings : firstButton;
             int rightButton = rtlMenuBar ? firstButton : R.id.btnSettings;
             if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) return v.getId() == leftButton;
             return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == rightButton;
         };
+        if (btnDashboard != null) btnDashboard.setOnKeyListener(pillKeys);
         btnInputs.setOnKeyListener(pillKeys);
         btnWifi.setOnKeyListener(pillKeys);
         btnVpn.setOnKeyListener(pillKeys);
@@ -905,6 +925,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        setIntent(intent);
+        if (intent != null && "show_dashboard".equals(intent.getStringExtra("view"))) {
+            showDashboard();
+            return;
+        }
+        if (dashboardOverlay != null && dashboardOverlay.getVisibility() == View.VISIBLE) {
+            hideDashboard();
+            return;
+        }
         if (openLauncherSettingsIfAsked(intent)) return;
         if (openInputsIfAsked(intent)) return;
         if (intent == null || !intent.hasCategory(Intent.CATEGORY_HOME)) return;
@@ -1253,6 +1282,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      */
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
+        if (dashboardOverlay != null && dashboardOverlay.getVisibility() == View.VISIBLE) {
+            if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                if (event.getAction() == KeyEvent.ACTION_UP) {
+                    hideDashboard();
+                }
+                return true;
+            }
+            if (dashboardWebView != null) {
+                return dashboardWebView.dispatchKeyEvent(event);
+            }
+        }
         if (handleSettingsKey(event)) return true;
         if (tileMenuEnabled && !reordering && openPopup == null && cardPrompt == null
                 && event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
@@ -1578,8 +1618,69 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         });
     }
 
+    // ---- embedded dashboard ---------------------------------------------------------------------
+
+    private void initDashboard() {
+        dashboardOverlay = findViewById(R.id.dashboardOverlay);
+        dashboardWebView = findViewById(R.id.dashboardWebView);
+        if (dashboardWebView == null) return;
+
+        WebSettings ws = dashboardWebView.getSettings();
+        ws.setJavaScriptEnabled(true);
+        ws.setDomStorageEnabled(true);
+        ws.setDatabaseEnabled(true);
+        ws.setAllowFileAccess(true);
+        ws.setAllowContentAccess(true);
+        ws.setAllowFileAccessFromFileURLs(true);
+        ws.setAllowUniversalAccessFromFileURLs(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ws.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        }
+
+        dashboardWebView.setBackgroundColor(Color.TRANSPARENT);
+        dashboardWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+
+        dashboardWebView.addJavascriptInterface(new Object() {
+            @JavascriptInterface
+            public void closeDashboard() {
+                runOnUiThread(() -> hideDashboard());
+            }
+        }, "AndroidBridge");
+
+        dashboardWebView.setWebViewClient(new WebViewClient());
+        dashboardWebView.loadUrl("file:///android_asset/dashboard/dashboard.html");
+        dashboardLoaded = true;
+    }
+
+    public void showDashboard() {
+        if (dashboardOverlay == null) return;
+        if (!dashboardLoaded) {
+            initDashboard();
+        } else if (dashboardWebView != null) {
+            dashboardWebView.evaluateJavascript("if(typeof renderTodos === 'function') renderTodos();", null);
+        }
+        hideGlass();
+        dashboardOverlay.setVisibility(View.VISIBLE);
+        dashboardOverlay.setAlpha(0f);
+        dashboardOverlay.animate().alpha(1f).setDuration(220).withEndAction(() -> {
+            if (dashboardWebView != null) dashboardWebView.requestFocus();
+        }).start();
+    }
+
+    public void hideDashboard() {
+        if (dashboardOverlay == null || dashboardOverlay.getVisibility() != View.VISIBLE) return;
+        dashboardOverlay.animate().alpha(0f).setDuration(180).withEndAction(() -> {
+            dashboardOverlay.setVisibility(View.GONE);
+            focusTile(singleRow ? lastFocused : lastFocused % COLUMNS);
+        }).start();
+    }
+
     @Override
     public void onBackPressed() {
+        if (dashboardOverlay != null && dashboardOverlay.getVisibility() == View.VISIBLE) {
+            hideDashboard();
+            return;
+        }
         // Home screen: Back goes nowhere.
     }
 

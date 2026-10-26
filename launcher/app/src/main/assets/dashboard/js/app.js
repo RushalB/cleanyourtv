@@ -132,17 +132,12 @@ function createTodoItem(item, onToggle) {
     tagHTML = `<span class="todo-item__tag todo-item__tag--${item.tag}">${item.tag}</span>`;
   }
 
-  const metaText = item.status === 'done'
-    ? 'Completed'
-    : (item.status === 'archived' ? 'Archived' : 'PocketBase · Open');
-
   li.innerHTML = `
     <div class="todo-item__check">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
     <div class="todo-item__content">
       <span class="todo-item__text">${item.text}</span>
-      <span class="todo-item__meta">${metaText}</span>
     </div>
     ${tagHTML}
   `;
@@ -150,8 +145,6 @@ function createTodoItem(item, onToggle) {
   const toggle = () => {
     item.done = !item.done;
     li.classList.toggle('done', item.done);
-    const meta = li.querySelector('.todo-item__meta');
-    if (meta) meta.textContent = item.done ? 'Completed' : 'PocketBase · Open';
     if (onToggle) onToggle(item);
   };
 
@@ -187,9 +180,8 @@ async function renderTodos() {
       });
 
       const pendingCount = items.filter(i => i.status === 'pending').length;
-      const doneCount = items.filter(i => i.status === 'done').length;
       if (countBadge) {
-        countBadge.textContent = `${pendingCount} open · ${doneCount} done`;
+        countBadge.textContent = `${pendingCount} open`;
       }
 
       sorted.slice(0, 14).forEach(raw => {
@@ -206,7 +198,7 @@ async function renderTodos() {
   }
 }
 
-function getRandomRecipes(count = 4) {
+function getRandomRecipes(count = 3) {
   const shuffled = [...ALL_RECIPES].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count);
 }
@@ -216,16 +208,13 @@ function renderRecipes() {
   if (!container) return;
   container.innerHTML = '';
 
-  const recipes = getRandomRecipes(4);
+  const recipes = getRandomRecipes(3);
   recipes.forEach(recipe => {
     const card = createElement('div', 'recipe-card');
     card.innerHTML = `
-      <div class="recipe-card__emoji" style="background: ${recipe.bg};">
-        ${recipe.emoji}
-      </div>
+      <div class="recipe-card__emoji">${recipe.emoji}</div>
       <div class="recipe-card__info">
         <div class="recipe-card__name">${recipe.name}</div>
-        <div class="recipe-card__meta">${recipe.meta}</div>
       </div>
       <div class="recipe-card__time">${recipe.time}</div>
     `;
@@ -238,20 +227,20 @@ function renderCalendar() {
   if (!container) return;
   container.innerHTML = '';
 
+  const allEvents = [];
   CALENDAR_EVENTS.forEach(dayGroup => {
-    const label = createElement('div', 'calendar-day-label', dayGroup.day);
-    container.appendChild(label);
+    dayGroup.events.forEach(event => allEvents.push(event));
+  });
 
-    dayGroup.events.forEach(event => {
-      const el = createElement('div', 'calendar-event');
-      el.innerHTML = `
-        <span class="calendar-event__time">${event.time}</span>
-        <span class="calendar-event__dot calendar-event__dot--${event.dot}"></span>
-        <span class="calendar-event__title">${event.title}</span>
-        <span class="calendar-event__duration">${event.duration}</span>
-      `;
-      container.appendChild(el);
-    });
+  allEvents.slice(0, 3).forEach(event => {
+    const el = createElement('div', 'calendar-event');
+    el.innerHTML = `
+      <span class="calendar-event__time">${event.time}</span>
+      <span class="calendar-event__dot calendar-event__dot--${event.dot}"></span>
+      <span class="calendar-event__title">${event.title}</span>
+      <span class="calendar-event__duration">${event.duration}</span>
+    `;
+    container.appendChild(el);
   });
 }
 

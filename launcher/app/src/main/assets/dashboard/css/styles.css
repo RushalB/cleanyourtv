@@ -48,13 +48,20 @@
   --c-sand:           #E3D5CA;
   --c-rose-taupe:     #D5BDAF;
 
-  /* High contrast text for dark UI */
+  /* Flat surfaces */
+  --bg-black:         #151413;
+  --bg-card:          #211E1C;
+  --border-card:      #36312C;
+  --bg-item:          #2A2623;
+  --border-item:      #3E3832;
+
+  /* High contrast text for flat dark UI */
   --text-bright:      #FFFFFF;
   --text-primary:     #F5EBE0;  /* Cream */
   --text-secondary:   #D6CCC2;  /* Taupe */
   --text-muted:       rgba(214, 204, 194, 0.45);
   --text-dim:         rgba(227, 213, 202, 0.70);
-  --text-dark:        #1A1615;
+  --text-dark:        #1E1B19;
 
   /* Sizing */
   --topbar-height: 0px;  /* Removed — clock is inline like CleanYourTV */

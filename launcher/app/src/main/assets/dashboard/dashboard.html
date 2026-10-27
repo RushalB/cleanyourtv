@@ -3,60 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Daily Ledger</title>
+  <title>Family Journal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Kalam:wght@300;400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <div id="dashboard" class="view active">
-    <div class="sheet">
-      <!-- Masthead Header -->
+    <div class="canvas">
       <header class="masthead">
         <div class="masthead-left">
-          <h1 class="masthead-date" id="dashboard-date">Today</h1>
-          <span class="masthead-day" id="dashboard-day">Daily Ledger</span>
+          <h1 class="date-heading" id="dashboard-date">Tuesday, October 27</h1>
+          <span class="stamp-badge" id="dashboard-day">Week 44</span>
         </div>
         <div class="masthead-right">
-          <div class="sync-status">
-            <span id="pb-status-dot" class="status-dot" title="PocketBase Status"></span>
-            <span>PocketBase</span>
-          </div>
-          <span class="clock-display" id="dashboard-clock"></span>
-          <button class="back-btn" id="dashboard-back-btn" tabindex="0" title="Back to Launcher">Launcher (↩)</button>
+          <span class="sync-pill">
+            <span id="pb-status-dot" class="sync-dot" title="PocketBase Status"></span>
+            <span id="pb-status-label">Synced</span>
+          </span>
+          <span id="dashboard-clock"></span>
+          <button class="home-tab" id="dashboard-back-btn" tabindex="0" title="Back to Launcher">↩ Home</button>
         </div>
       </header>
 
-      <!-- Ledger Spread -->
       <div class="spread">
-        <!-- Left: Primary Tasks on Ruled Ledger Lines -->
-        <section class="tasks-column">
-          <div class="column-title">
-            <span>Focus & Tasks</span>
-            <span class="count" id="todo-display-badge">Loading...</span>
-          </div>
-          <ul class="todo-stream" id="todo-list"></ul>
-        </section>
-
-        <!-- Right: Schedule & Meals -->
-        <aside class="right-column">
-          <div class="sidebar-section">
-            <div class="column-title">
-              <span>Schedule</span>
-              <span class="count">Today</span>
+        <!-- Column 1 (Left): Schedule & Nourish -->
+        <aside class="col-left">
+          <div>
+            <div class="section-header">
+              <span>Today's Rhythm</span>
+              <span class="meta" id="schedule-count">3 Events</span>
             </div>
-            <div class="timeline-stream" id="calendar-events"></div>
+            <div id="calendar-events"></div>
           </div>
 
-          <div class="sidebar-section">
-            <div class="column-title">
-              <span>Nourish</span>
-              <span class="count">Dinner Ideas</span>
+          <div>
+            <div class="section-header">
+              <span>On the Table</span>
+              <span class="meta">Dinner Ideas</span>
             </div>
-            <div class="meal-stream" id="recipe-list"></div>
+            <div id="recipe-list"></div>
           </div>
         </aside>
+
+        <!-- Column 2 (Right): Daily Focus & Tasks -->
+        <section class="col-right">
+          <div class="section-header">
+            <span>Daily Focus & Tasks</span>
+            <span class="meta" id="todo-display-badge">Loading...</span>
+          </div>
+          <ul class="todo-list" id="todo-list"></ul>
+        </section>
       </div>
     </div>
   </div>

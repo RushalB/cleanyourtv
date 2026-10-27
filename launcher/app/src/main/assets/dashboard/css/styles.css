@@ -1,34 +1,7 @@
 /* ═══════════════════════════════════════════════════════════
-   CleanYourTV Daily Planner — The Slate Journal (Gold Edition)
-   Stationery Ledger Aesthetic for Fire TV
+   CleanYourTV Family Journal — Hearth & Wildflower Edition
+   Hand-Penned Paper Stationery (Caveat + Kalam + DM Mono)
    ═══════════════════════════════════════════════════════════ */
-
-:root {
-  /* Obsidian & Charcoal Paper Backgrounds */
-  --bg-slate:         #141312;
-  --bg-focus:         #211B15;
-  --bg-btn:           #211B15;
-  --bg-btn-focus:     #332718;
-
-  /* Hairlines & Borders */
-  --rule-masthead:    #332B22;
-  --rule-header:      #2B231B;
-  --rule-row:         #241D17;
-  --rule-btn:         #57462B;
-  --rule-btn-focus:   #E5C378;
-
-  /* Gold Typography Palette */
-  --gold-primary:     #E5C378; /* Radiant Gilded Gold */
-  --gold-focus:       #FDF6E2; /* Bright Illuminating Gold */
-  --gold-body:        #E8D7B8; /* Warm Gold Parchment */
-  --gold-sub:         #A38B62; /* Muted Antique Gold */
-  --gold-header:      #C2A878; /* Classic Ledger Header Gold */
-  --gold-meta:        #85704E; /* Deep Warm Gold */
-  --gold-amber:       #E5A855; /* Warm Amber Gold */
-  --gold-done:        #706047; /* Dimmed Antique Gold */
-  --gold-seal:        #C49F4E; /* Gold Checkmark Seal */
-  --gold-circle:      #8A734F; /* Unchecked Gold Circle */
-}
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -42,9 +15,12 @@ html, body {
   max-width: 100vw;
   max-height: 100vh;
   overflow: hidden;
-  background: var(--bg-slate);
-  color: var(--gold-body);
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: #FAF6EE;
+  background-image: url('../images/hearth_flatlay_bg.jpg');
+  background-size: 100% 100%;
+  background-position: center;
+  color: #241E18;
+  font-family: 'Kalam', cursive, system-ui, sans-serif;
   user-select: none;
   -webkit-font-smoothing: antialiased;
 }
@@ -53,18 +29,17 @@ html, body {
   width: 100vw;
   height: 100vh;
   position: relative;
-  background: var(--bg-slate);
   overflow: hidden;
 }
 
-/* ── Single Journal Sheet ── */
-.sheet {
+/* Open cream cotton paper area inside the botanical & teacup border */
+.canvas {
   width: 100vw;
   height: 100vh;
-  padding: 30px 48px 24px 48px;
+  padding: 56px 108px 34px 210px;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
+  position: relative;
 }
 
 /* ── Masthead ── */
@@ -72,327 +47,287 @@ html, body {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  border-bottom: 1px solid var(--rule-masthead);
-  padding-bottom: 12px;
-  margin-bottom: 22px;
+  padding-bottom: 8px;
+  margin-bottom: 18px;
+  border-bottom: 2px solid #3A3024;
+  position: relative;
   flex-shrink: 0;
+}
+
+.masthead::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background: rgba(58, 48, 36, 0.35);
 }
 
 .masthead-left {
   display: flex;
   align-items: baseline;
-  gap: 16px;
+  gap: 12px;
 }
 
-.masthead-date {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 38px;
+.date-heading {
+  font-family: 'Caveat', cursive, Georgia, serif;
+  font-size: 40px;
+  font-weight: 700;
+  color: #231C15;
+  line-height: 0.95;
+  white-space: nowrap;
+}
+
+.stamp-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
   font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  color: var(--gold-primary);
-}
-
-.masthead-day {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--gold-sub);
+  letter-spacing: 0.1em;
+  color: #9E3B2B;
+  border: 1.5px solid rgba(158, 59, 43, 0.8);
+  padding: 1px 7px;
+  border-radius: 3px;
+  transform: rotate(-1.5deg);
+  background: rgba(250, 242, 236, 0.85);
 }
 
 .masthead-right {
   display: flex;
   align-items: center;
-  gap: 22px;
-  font-family: 'JetBrains Mono', monospace;
+  gap: 14px;
+  font-family: 'DM Mono', monospace;
   font-size: 11px;
-  color: var(--gold-meta);
+  color: #6B5C4C;
+  white-space: nowrap;
 }
 
-.sync-status {
-  display: flex;
+.sync-pill {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  color: var(--gold-sub);
+  gap: 5px;
+  font-size: 10px;
+  color: #4E684C;
 }
 
-.status-dot {
+.sync-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--gold-primary);
-  display: inline-block;
+  background: #4A7856;
   transition: background 0.2s ease;
 }
 
-.status-dot.offline {
-  background: #8A5545;
+.sync-dot.offline {
+  background: #B05545;
 }
 
-.clock-display {
-  color: var(--gold-header);
-  font-weight: 500;
-}
-
-.back-btn {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--gold-primary);
-  background: var(--bg-btn);
-  border: 1px solid var(--rule-btn);
-  padding: 5px 14px;
-  border-radius: 999px;
+.home-tab {
+  font-family: 'Kalam', cursive;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2B2218;
+  background: rgba(236, 226, 208, 0.9);
+  border: 1px solid #C4B498;
+  padding: 2px 11px;
+  border-radius: 5px;
   cursor: pointer;
   outline: none;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
 }
 
-.back-btn:focus {
-  background: var(--bg-btn-focus);
-  border-color: var(--rule-btn-focus);
-  box-shadow: 0 0 0 1px var(--rule-btn-focus);
+.home-tab:focus {
+  background: rgba(235, 208, 150, 0.85);
+  border-color: #5C4930;
+  box-shadow: 0 0 0 1.5px #5C4930;
 }
 
-/* ── Two-Column Ledger Spread ── */
+/* ── Two-Column Spread (Col 1: Schedule & Nourish, Col 2: Focus & Tasks) ── */
 .spread {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 48px;
+  grid-template-columns: 0.88fr 1.12fr;
+  gap: 24px;
   flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.col-left,
+.col-right {
+  min-width: 0;
+}
+
+.col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-right: 14px;
+  border-right: 1.5px dashed rgba(140, 125, 105, 0.38);
+}
+
+.col-right {
+  display: flex;
+  flex-direction: column;
   min-height: 0;
   overflow: hidden;
 }
 
-/* ── Column Headers ── */
-.column-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 10.5px;
+.section-header {
+  font-family: 'Caveat', cursive, Georgia, serif;
+  font-size: 25px;
   font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gold-header);
-  margin-bottom: 14px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--rule-header);
+  color: #465742;
+  border-bottom: 1.5px solid rgba(120, 108, 92, 0.35);
+  padding-bottom: 2px;
+  margin-bottom: 6px;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   flex-shrink: 0;
 }
 
-.column-title span.count {
-  font-family: 'JetBrains Mono', monospace;
+.section-header .meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
   font-weight: 400;
-  font-size: 10px;
-  color: var(--gold-meta);
+  color: #7D7060;
 }
 
-/* ── Tasks Stream (Ruled Lines) ── */
-.tasks-column {
+/* ── Col 1: Timeline & Meals ── */
+.timeline-row,
+.meal-row {
   display: flex;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
+  align-items: baseline;
+  gap: 8px;
+  height: 34px;
+  border-bottom: 1px dashed rgba(150, 136, 118, 0.36);
+  padding: 0 2px;
 }
 
-.todo-stream {
+.time-stamp {
+  font-family: 'DM Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #6B5B4B;
+  min-width: 54px;
+  flex-shrink: 0;
+}
+
+.meal-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #A84A2B;
+  min-width: 44px;
+  flex-shrink: 0;
+}
+
+.event-title,
+.meal-name {
+  font-family: 'Kalam', cursive;
+  font-size: 13.5px;
+  color: #241E18;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-dur,
+.meal-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
+  color: #8C7E6D;
+  flex-shrink: 0;
+}
+
+/* ── Col 2: Ruled Tasks ── */
+.todo-list {
   list-style: none;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   scrollbar-width: none;
-  padding-bottom: 12px;
 }
 
-.todo-stream::-webkit-scrollbar {
+.todo-list::-webkit-scrollbar {
   display: none;
 }
 
 .todo-row {
   display: flex;
   align-items: center;
-  gap: 14px;
-  height: 48px;
-  min-height: 48px;
-  border-bottom: 1px solid var(--rule-row);
-  cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease;
-  padding: 0 10px;
+  gap: 10px;
+  height: 42px;
+  min-height: 42px;
+  border-bottom: 1px solid rgba(145, 130, 112, 0.34);
+  padding: 0 8px;
   border-radius: 4px;
+  cursor: pointer;
   outline: none;
+  transition: background 0.12s ease, border-color 0.12s ease;
 }
 
-.todo-row:focus {
-  background: var(--bg-focus);
-  border-bottom: 2px solid var(--gold-primary);
+.todo-row:focus,
+.todo-row.focused {
+  background: linear-gradient(90deg, rgba(235, 208, 150, 0.55) 0%, rgba(235, 208, 150, 0.22) 95%, transparent 100%);
+  border-bottom: 1.5px solid #5C4930;
 }
 
 .todo-circle {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
+  border: 1.8px solid #574B3D;
   border-radius: 50%;
-  border: 1.5px solid var(--gold-circle);
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s ease;
-}
-
-.todo-row:focus .todo-circle {
-  border-color: var(--gold-primary);
+  position: relative;
 }
 
 .todo-row.done .todo-circle {
-  background: var(--gold-seal);
-  border-color: var(--gold-seal);
-  position: relative;
+  background: #4A7050;
+  border-color: #4A7050;
 }
 
 .todo-row.done .todo-circle::after {
   content: '';
   position: absolute;
   width: 4px;
-  height: 8px;
-  border: solid var(--bg-slate);
+  height: 7.5px;
+  border: solid #FAF6EE;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
-  top: 2px;
-  left: 5px;
+  top: 1px;
+  left: 4px;
 }
 
-.todo-name {
-  font-size: 14.5px;
-  font-weight: 450;
-  color: var(--gold-body);
+.todo-text {
+  font-family: 'Kalam', cursive;
+  font-size: 14.2px;
+  color: #211C17;
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding-top: 1px;
 }
 
-.todo-row:focus .todo-name {
-  color: var(--gold-focus);
-}
-
-.todo-row.done .todo-name {
+.todo-row.done .todo-text {
   text-decoration: line-through;
-  color: var(--gold-done);
+  color: #8E8272;
 }
 
-.todo-tag {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9.5px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--bg-focus);
-  color: var(--gold-header);
-  border: 1px solid var(--rule-btn);
-}
-
-/* ── Right Column (Schedule & Nourish) ── */
-.right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.sidebar-section {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-/* ── Timeline ── */
-.timeline-stream {
-  display: flex;
-  flex-direction: column;
-}
-
-.timeline-row {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-  height: 38px;
-  border-bottom: 1px dashed var(--rule-row);
-  font-size: 13px;
-  padding: 0 4px;
-}
-
-.time-stamp {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+.todo-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px;
   font-weight: 500;
-  color: var(--gold-header);
-  min-width: 62px;
-  flex-shrink: 0;
-}
-
-.event-label {
-  flex: 1;
-  color: var(--gold-body);
-  font-weight: 450;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.event-len {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  color: var(--gold-meta);
-  flex-shrink: 0;
-}
-
-/* ── Nourish ── */
-.meal-stream {
-  display: flex;
-  flex-direction: column;
-}
-
-.meal-row {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  height: 34px;
-  border-bottom: 1px dashed var(--rule-row);
-  font-size: 13px;
-  padding: 0 4px;
-}
-
-.meal-type {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--gold-amber);
-  min-width: 52px;
-  flex-shrink: 0;
-}
-
-.meal-dish {
-  flex: 1;
-  color: var(--gold-body);
-  font-weight: 450;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.meal-mins {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  color: var(--gold-meta);
+  color: #9E3B2B;
+  background: rgba(238, 212, 204, 0.78);
+  border: 1px solid rgba(158, 59, 43, 0.35);
+  padding: 1px 6px;
+  border-radius: 3px;
   flex-shrink: 0;
 }

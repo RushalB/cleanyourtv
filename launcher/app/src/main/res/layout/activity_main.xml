@@ -415,7 +415,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        android:background="#FF151413"
+        android:background="#FFFAF6EE"
         android:focusable="true">
 
         <WebView

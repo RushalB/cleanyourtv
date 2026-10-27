@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   CleanYourTV Daily Planner — The Slate Journal (Gold Edition)
+   CleanYourTV Family Journal — Hearth & Wildflower Edition
    Application Logic & PocketBase Sync
    ═══════════════════════════════════════════════════════════ */
 
@@ -13,8 +13,6 @@ function createElement(tag, className, textContent) {
   return el;
 }
 
-// ── PocketBase API & Fallback Data ───────────────────────
-
 const PB_API_URL = 'http://192.168.4.32:8090/api/collections/todos/records';
 
 const FALLBACK_TODOS = [
@@ -26,31 +24,29 @@ const FALLBACK_TODOS = [
 ];
 
 const ALL_RECIPES = [
-  { name: 'Creamy Garlic Butter Tuscan Salmon', type: 'Dinner', time: '25m' },
-  { name: 'Sheet Pan Lemon Herb Chicken', type: 'Dinner', time: '35m' },
-  { name: 'Cast-Iron Ribeye with Herb Butter', type: 'Option', time: '30m' },
-  { name: 'Thai Coconut Red Curry with Tofu', type: 'Option', time: '30m' },
-  { name: 'Spicy Peanut Noodles with Scallions', type: 'Dinner', time: '20m' },
-  { name: 'Mediterranean Baked Cod with Feta', type: 'Dinner', time: '25m' },
-  { name: 'Mushroom Risotto with Truffle Oil', type: 'Option', time: '40m' },
+  { name: 'Garlic Butter Tuscan Salmon', type: 'Dinner', time: '25m' },
+  { name: 'Lemon Herb Roasted Chicken', type: 'Dinner', time: '35m' },
+  { name: 'Cast-Iron Herb Butter Ribeye', type: 'Idea', time: '30m' },
+  { name: 'Thai Coconut Red Curry', type: 'Idea', time: '30m' },
+  { name: 'Spicy Sesame Peanut Noodles', type: 'Dinner', time: '20m' },
+  { name: 'Mediterranean Baked Cod', type: 'Idea', time: '25m' },
+  { name: 'Wild Mushroom Truffle Risotto', type: 'Idea', time: '40m' },
 ];
 
 const CALENDAR_EVENTS = [
   { time: '10:00 AM', title: 'Team Sync & Standup', duration: '30m' },
   { time: '01:30 PM', title: 'Project Architecture Review', duration: '1h' },
   { time: '04:00 PM', title: 'Design Check-in', duration: '45m' },
-  { time: '06:00 PM', title: 'Evening Workout & Stretch', duration: '40m' },
 ];
 
 function setSyncStatus(online) {
   const dot = $('#pb-status-dot');
-  if (!dot) return;
-  if (online) {
-    dot.classList.remove('offline');
-    dot.title = 'PocketBase Online & Synced';
-  } else {
-    dot.classList.add('offline');
-    dot.title = 'PocketBase Offline (showing fallback)';
+  const label = $('#pb-status-label');
+  if (dot) {
+    dot.classList.toggle('offline', !online);
+  }
+  if (label) {
+    label.textContent = online ? 'Synced' : 'Local';
   }
 }
 
@@ -109,15 +105,12 @@ function createTodoItem(item, onToggle) {
   li.setAttribute('tabindex', '0');
   if (item.id) li.dataset.id = item.id;
 
-  let tagHTML = '';
-  if (item.tag) {
-    tagHTML = `<span class="todo-tag">${item.tag}</span>`;
-  }
+  const badgeHTML = item.tag ? `<span class="todo-badge">${item.tag}</span>` : '';
 
   li.innerHTML = `
     <div class="todo-circle"></div>
-    <span class="todo-name">${item.text}</span>
-    ${tagHTML}
+    <span class="todo-text">${item.text}</span>
+    ${badgeHTML}
   `;
 
   const toggle = () => {
@@ -135,7 +128,13 @@ function createTodoItem(item, onToggle) {
   });
 
   li.addEventListener('focus', () => {
+    $$('.todo-row').forEach(r => r.classList.remove('focused'));
+    li.classList.add('focused');
     li.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
+
+  li.addEventListener('blur', () => {
+    li.classList.remove('focused');
   });
 
   return li;
@@ -144,15 +143,8 @@ function createTodoItem(item, onToggle) {
 async function renderTodos() {
   const list = $('#todo-list');
   const countBadge = $('#todo-display-badge');
+  const focusedId = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.id : null;
   const items = await fetchPocketBaseTodos();
-
-  const handleToggle = (item) => {
-    if (!item.id) return;
-    const nextStatus = item.done ? 'done' : 'pending';
-    updatePocketBaseStatus(item.id, nextStatus);
-    // Refresh count display after slight delay
-    setTimeout(updateCounts, 200);
-  };
 
   const updateCounts = () => {
     const allRows = $$('.todo-row');
@@ -161,6 +153,13 @@ async function renderTodos() {
     if (countBadge) {
       countBadge.textContent = `${openCount} Open · ${doneRows.length} Done`;
     }
+  };
+
+  const handleToggle = (item) => {
+    updateCounts();
+    if (!item.id) return;
+    const nextStatus = item.done ? 'done' : 'pending';
+    updatePocketBaseStatus(item.id, nextStatus);
   };
 
   if (!list) return;
@@ -183,6 +182,15 @@ async function renderTodos() {
   }
 
   updateCounts();
+
+  // Restore focus after refresh
+  const rows = $$('.todo-row');
+  if (focusedId) {
+    const match = rows.find(r => r.dataset.id === focusedId);
+    if (match) match.focus();
+  } else if (rows.length > 0 && document.activeElement !== $('#dashboard-back-btn')) {
+    rows[0].focus();
+  }
 }
 
 function renderRecipes() {
@@ -190,13 +198,13 @@ function renderRecipes() {
   if (!container) return;
   container.innerHTML = '';
 
-  const shuffled = [...ALL_RECIPES].sort(() => Math.random() - 0.5).slice(0, 3);
-  shuffled.forEach(recipe => {
+  const picks = ALL_RECIPES.slice(0, 3);
+  picks.forEach(recipe => {
     const row = createElement('div', 'meal-row');
     row.innerHTML = `
-      <span class="meal-type">${recipe.type}</span>
-      <span class="meal-dish">${recipe.name}</span>
-      <span class="meal-mins">${recipe.time}</span>
+      <span class="meal-tag">${recipe.type}</span>
+      <span class="meal-name">${recipe.name}</span>
+      <span class="meal-time">${recipe.time}</span>
     `;
     container.appendChild(row);
   });
@@ -211,8 +219,8 @@ function renderCalendar() {
     const row = createElement('div', 'timeline-row');
     row.innerHTML = `
       <span class="time-stamp">${event.time}</span>
-      <span class="event-label">${event.title}</span>
-      <span class="event-len">${event.duration}</span>
+      <span class="event-title">${event.title}</span>
+      <span class="event-dur">${event.duration}</span>
     `;
     container.appendChild(row);
   });
@@ -236,7 +244,7 @@ function updateDashboardDate() {
     const startOfYear = new Date(now.getFullYear(), 0, 1);
     const pastDaysOfYear = (now - startOfYear) / 86400000;
     const weekNum = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
-    dayEl.textContent = `Daily Ledger · Week ${weekNum}`;
+    dayEl.textContent = `Week ${weekNum}`;
   }
 
   if (clockEl) {
@@ -248,15 +256,11 @@ function updateDashboardDate() {
   }
 }
 
-// ── Close / Dismiss Dashboard ────────────────────────────
-
 function closeDashboard() {
   if (window.AndroidBridge && typeof window.AndroidBridge.closeDashboard === 'function') {
     window.AndroidBridge.closeDashboard();
   }
 }
-
-// ── Remote D-Pad Navigation ──────────────────────────────
 
 function initDpadNavigation() {
   window.addEventListener('keydown', (e) => {
@@ -306,8 +310,6 @@ function initDpadNavigation() {
   });
 }
 
-// ── Lifecycle Initialization ─────────────────────────────
-
 document.addEventListener('DOMContentLoaded', () => {
   const backBtn = $('#dashboard-back-btn');
   if (backBtn) {
@@ -326,16 +328,12 @@ document.addEventListener('DOMContentLoaded', () => {
   updateDashboardDate();
   initDpadNavigation();
 
-  // Focus the first item or back button by default
   setTimeout(() => {
     const firstItem = $('.todo-row');
     if (firstItem) firstItem.focus();
     else if (backBtn) backBtn.focus();
   }, 200);
 
-  // Auto-refresh clock every 10 seconds
   setInterval(updateDashboardDate, 10000);
-
-  // Auto-refresh PocketBase todos every 15 seconds
   setInterval(renderTodos, 15000);
 });

@@ -45,10 +45,10 @@ html, body {
 /* ── Masthead ── */
 .masthead {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   padding-bottom: 8px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   border-bottom: 2px solid #3A3024;
   position: relative;
   flex-shrink: 0;
@@ -66,49 +66,48 @@ html, body {
 
 .masthead-left {
   display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.date-row {
+  display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: 8px;
 }
 
 .date-heading {
   font-family: 'Caveat', cursive, Georgia, serif;
-  font-size: 40px;
+  font-size: 30px;
   font-weight: 700;
   color: #231C15;
-  line-height: 0.95;
+  line-height: 1;
   white-space: nowrap;
 }
 
 .stamp-badge {
   font-family: 'DM Mono', monospace;
-  font-size: 9.5px;
+  font-size: 8.5px;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: #9E3B2B;
   border: 1.5px solid rgba(158, 59, 43, 0.8);
-  padding: 1px 7px;
+  padding: 1px 5px;
   border-radius: 3px;
   transform: rotate(-1.5deg);
   background: rgba(250, 242, 236, 0.85);
-}
-
-.masthead-right {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  color: #6B5C4C;
   white-space: nowrap;
 }
 
-.sync-pill {
-  display: inline-flex;
+.masthead-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
+  color: #7D6E5D;
+  display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 10px;
-  color: #4E684C;
+  gap: 6px;
+  white-space: nowrap;
 }
 
 .sync-dot {
@@ -117,10 +116,82 @@ html, body {
   border-radius: 50%;
   background: #4A7856;
   transition: background 0.2s ease;
+  display: inline-block;
 }
 
 .sync-dot.offline {
   background: #B05545;
+}
+
+.masthead-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  white-space: nowrap;
+}
+
+.clock-weather-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.clock-hero {
+  display: flex;
+  align-items: baseline;
+  font-family: 'Caveat', cursive;
+  font-size: 50px;
+  font-weight: 700;
+  color: #231C15;
+  line-height: 0.85;
+}
+
+.clock-hero .clock-ampm {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: #8C7B68;
+  margin-left: 3px;
+}
+
+.weather-hero {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(246, 238, 224, 0.9);
+  border: 1.5px solid #C8B9A2;
+  border-radius: 6px;
+  padding: 3px 12px;
+  box-shadow: 0 2px 6px rgba(60, 45, 30, 0.08);
+}
+
+.weather-hero .temp {
+  font-family: 'Caveat', cursive;
+  font-size: 42px;
+  font-weight: 700;
+  color: #A63B2B;
+  line-height: 0.9;
+}
+
+.weather-hero .meta-col {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.weather-hero .cond-line {
+  font-family: 'Kalam', cursive;
+  font-size: 14px;
+  font-weight: 700;
+  color: #364B35;
+  white-space: nowrap;
+}
+
+.weather-hero .feel-line {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
+  color: #7D6D5B;
+  white-space: nowrap;
 }
 
 .home-tab {

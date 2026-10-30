@@ -14,15 +14,32 @@
     <div class="canvas">
       <header class="masthead">
         <div class="masthead-left">
-          <h1 class="date-heading" id="dashboard-date">Tuesday, October 27</h1>
-          <span class="stamp-badge" id="dashboard-day">Week 44</span>
-        </div>
-        <div class="masthead-right">
-          <span class="sync-pill">
+          <div class="date-row">
+            <h1 class="date-heading" id="dashboard-date">Tuesday, October 29</h1>
+            <span class="stamp-badge" id="dashboard-day">Week 44</span>
+          </div>
+          <div class="masthead-meta">
             <span id="pb-status-dot" class="sync-dot" title="PocketBase Status"></span>
             <span id="pb-status-label">Synced</span>
-          </span>
-          <span id="dashboard-clock"></span>
+            <span>·</span>
+            <span id="dashboard-location">Chicago</span>
+          </div>
+        </div>
+
+        <div class="masthead-right">
+          <div class="clock-weather-group">
+            <div class="clock-hero">
+              <span id="dashboard-clock">--:--</span>
+              <span class="clock-ampm" id="dashboard-clock-ampm"></span>
+            </div>
+            <div class="weather-hero" id="weather-card">
+              <span class="temp" id="weather-temp">--°</span>
+              <div class="meta-col">
+                <span class="cond-line" id="weather-cond">Loading...</span>
+                <span class="feel-line" id="weather-feels">Feels --°</span>
+              </div>
+            </div>
+          </div>
           <button class="home-tab" id="dashboard-back-btn" tabindex="0" title="Back to Launcher">↩ Home</button>
         </div>
       </header>

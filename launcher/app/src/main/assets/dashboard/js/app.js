@@ -230,6 +230,7 @@ function updateDashboardDate() {
   const dateEl = $('#dashboard-date');
   const dayEl = $('#dashboard-day');
   const clockEl = $('#dashboard-clock');
+  const ampmEl = $('#dashboard-clock-ampm');
   const now = new Date();
 
   if (dateEl) {
@@ -248,11 +249,104 @@ function updateDashboardDate() {
   }
 
   if (clockEl) {
-    clockEl.textContent = now.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    if (hours === 0) hours = 12;
+    clockEl.textContent = `${hours}:${minutes}`;
+    if (ampmEl) ampmEl.textContent = ampm;
+  }
+}
+
+function getWeatherCondition(code, isDay) {
+  switch (code) {
+    case 0:
+      return { label: isDay ? 'Sunny' : 'Clear', icon: isDay ? '☀️' : '🌙' };
+    case 1:
+      return { label: isDay ? 'Mostly Sunny' : 'Mostly Clear', icon: isDay ? '🌤️' : '🌙' };
+    case 2:
+      return { label: 'Partly Cloudy', icon: isDay ? '⛅' : '☁️' };
+    case 3:
+      return { label: 'Overcast', icon: '☁️' };
+    case 45: case 48:
+      return { label: 'Foggy', icon: '🌫️' };
+    case 51: case 53: case 55:
+      return { label: 'Drizzle', icon: '🌦️' };
+    case 61: case 63: case 65:
+      return { label: 'Rain', icon: '🌧️' };
+    case 66: case 67:
+      return { label: 'Freezing Rain', icon: '🌧️' };
+    case 71: case 73: case 75:
+      return { label: 'Snow', icon: '🌨️' };
+    case 77:
+      return { label: 'Snow Grains', icon: '🌨️' };
+    case 80: case 81: case 82:
+      return { label: 'Showers', icon: '🌧️' };
+    case 85: case 86:
+      return { label: 'Snow Showers', icon: '🌨️' };
+    case 95: case 96: case 99:
+      return { label: 'Thunderstorm', icon: '⛈️' };
+    default:
+      return { label: isDay ? 'Fair' : 'Clear', icon: isDay ? '🌤️' : '🌙' };
+  }
+}
+
+function renderWeather(data) {
+  const tempEl = $('#weather-temp');
+  const condEl = $('#weather-cond');
+  const feelsEl = $('#weather-feels');
+  const locEl = $('#dashboard-location');
+
+  if (tempEl) tempEl.textContent = `${data.temp}°`;
+  if (condEl) {
+    const cond = getWeatherCondition(data.code, data.isDay);
+    condEl.textContent = `${cond.icon} ${cond.label}`;
+  }
+  if (feelsEl) feelsEl.textContent = `Feels ${data.feelsLike}°`;
+  if (locEl && data.city) locEl.textContent = data.city;
+}
+
+async function fetchWeather() {
+  const cached = localStorage.getItem('journal_weather');
+  if (cached) {
+    try {
+      renderWeather(JSON.parse(cached));
+    } catch (e) {}
+  }
+
+  try {
+    const lat = 41.892;
+    const lon = -87.6416;
+    const city = 'Chicago';
+
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,is_day,weather_code&temperature_unit=fahrenheit&timezone=auto`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const cur = data.current;
+
+    const weatherData = {
+      temp: Math.round(cur.temperature_2m),
+      feelsLike: Math.round(cur.apparent_temperature),
+      isDay: cur.is_day === 1,
+      code: cur.weather_code,
+      city: city
+    };
+
+    localStorage.setItem('journal_weather', JSON.stringify(weatherData));
+    renderWeather(weatherData);
+  } catch (err) {
+    console.warn('Weather fetch failed:', err);
+    if (!cached) {
+      renderWeather({
+        temp: 51,
+        feelsLike: 46,
+        isDay: false,
+        code: 0,
+        city: 'Chicago'
+      });
+    }
   }
 }
 
@@ -326,6 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderRecipes();
   renderCalendar();
   updateDashboardDate();
+  fetchWeather();
   initDpadNavigation();
 
   setTimeout(() => {
@@ -336,4 +431,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
   setInterval(updateDashboardDate, 10000);
   setInterval(renderTodos, 15000);
+  setInterval(fetchWeather, 15 * 60 * 1000);
 });

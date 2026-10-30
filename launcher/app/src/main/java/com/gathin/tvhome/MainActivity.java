@@ -1655,7 +1655,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
-        dashboardWebView.loadUrl("file:///android_asset/dashboard/dashboard.html");
+        java.io.File customDashboard = new java.io.File("/sdcard/Download/dashboard/dashboard.html");
+        if (customDashboard.exists()) {
+            dashboardWebView.loadUrl("file:///sdcard/Download/dashboard/dashboard.html");
+        } else {
+            dashboardWebView.loadUrl("file:///android_asset/dashboard/dashboard.html");
+        }
         dashboardLoaded = true;
     }
 

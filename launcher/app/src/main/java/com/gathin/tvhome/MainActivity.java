@@ -837,6 +837,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 return true;
             }
             if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == rightButton) return true;
+            return false;
         };
         if (btnDashboard != null) btnDashboard.setOnKeyListener(pillKeys);
         btnInputs.setOnKeyListener(pillKeys);

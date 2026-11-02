@@ -202,7 +202,7 @@
                         android:format12Hour="h:mm"
                         android:format24Hour="HH:mm"
                         android:textColor="#FFFFFFFF"
-                        android:textSize="52sp"
+                        android:textSize="58sp"
                         android:fontFamily="@string/font_light"
                         android:letterSpacing="-0.04"
                         android:includeFontPadding="false" />
@@ -213,11 +213,11 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
                         android:layout_gravity="bottom"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="9dp"
                         android:format12Hour="a"
                         android:format24Hour=""
                         android:textColor="#B3FFFFFF"
-                        android:textSize="15sp"
+                        android:textSize="16sp"
                         android:fontFamily="@string/font_medium"
                         android:letterSpacing="0.08"
                         android:textAllCaps="true" />
@@ -225,11 +225,11 @@
                     <View
                         android:id="@+id/clockDivider"
                         android:layout_width="1dp"
-                        android:layout_height="26dp"
+                        android:layout_height="32dp"
                         android:layout_gravity="bottom"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="9dp"
                         android:background="#33FFFFFF" />
 
                     <LinearLayout
@@ -271,6 +271,55 @@
                             android:fontFamily="@string/font_regular"
                             android:letterSpacing="0.14"
                             android:textAllCaps="true" />
+
+                        <LinearLayout
+                            android:id="@+id/weatherIndiaRow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:id="@+id/launcherWeather"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#D9FFFFFF"
+                                android:textSize="13sp"
+                                android:fontFamily="@string/font_medium"
+                                android:letterSpacing="0.04"
+                                android:text="⛅ 57°F" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:layout_marginEnd="8dp"
+                                android:textColor="#66FFFFFF"
+                                android:textSize="13sp"
+                                android:text="·" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#B3FFFFFF"
+                                android:textSize="13sp"
+                                android:fontFamily="@string/font_regular"
+                                android:letterSpacing="0.04"
+                                android:text="🇮🇳 " />
+
+                            <TextClock
+                                android:id="@+id/indiaClock"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:timeZone="Asia/Kolkata"
+                                android:format12Hour="h:mm a 'IST'"
+                                android:format24Hour="HH:mm 'IST'"
+                                android:textColor="#D9FFFFFF"
+                                android:textSize="13sp"
+                                android:fontFamily="@string/font_medium"
+                                android:letterSpacing="0.04" />
+                        </LinearLayout>
 
                         <!-- Lunar date ("Lunar 13/9 · Year of the Horse"), shown when lunar_date is on. -->
                         <TextView

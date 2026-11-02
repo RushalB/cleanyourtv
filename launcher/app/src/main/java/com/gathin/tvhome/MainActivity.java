@@ -381,6 +381,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         public void run() {
             updateGreeting();
             updateRace();
+            updateWeather();
             // The pill follows the network callbacks and each return to Home; only the diya's flame follows the
             // signal level, so only it needs this minute's binder calls (about 7 ms on the UI thread).
             if (festive) updateWifiLabel();
@@ -475,6 +476,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             // The clock's own white for the date and the line before it, instead of their dimmed whites.
             ((TextView) findViewById(R.id.date)).setTextColor(Color.WHITE);
             findViewById(R.id.clockDivider).setBackgroundColor(Color.WHITE);
+            TextView w = findViewById(R.id.launcherWeather);
+            if (w != null) w.setTextColor(Color.WHITE);
+            TextView ic = findViewById(R.id.indiaClock);
+            if (ic != null) ic.setTextColor(Color.WHITE);
         }
         if (getResources().getBoolean(R.bool.rtl_menu_bar)) {
             // Center Hebrew greetings over the numeric time, independent of a visible AM/PM label. The clock's row
@@ -998,6 +1003,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (openLiveTvAfterBoot()) return;
         updateGreeting();
         updateRace();
+        updateWeather();
         // The network and Inputs pills keep their state while Home is in the background, and callbacks update them
         // when the network or the inputs change, so this refresh only catches anything missed. Its binder calls
         // (about 7 ms on a TCL C755, most of it WifiManager.getConnectionInfo) would hold up the first frame back
@@ -2631,6 +2637,54 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         if (shamsi) shamsiDate.setText(Shamsi.today(getResources()));
         if (lunar) lunarDate.setText(Lunar.today(getResources(), lunarOffset));
+    }
+
+    private long lastWeatherFetch = 0;
+
+    private void updateWeather() {
+        TextView tv = findViewById(R.id.launcherWeather);
+        if (tv == null) return;
+        long now = System.currentTimeMillis();
+        if (now - lastWeatherFetch < 10 * 60 * 1000) return; // 10 minutes cache
+        new Thread(() -> {
+            try {
+                java.net.URL url = new java.net.URL("https://api.open-meteo.com/v1/forecast?latitude=41.8781&longitude=-87.6298&current=temperature_2m,weather_code&temperature_unit=fahrenheit");
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
+                if (conn.getResponseCode() == 200) {
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream()));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) sb.append(line);
+                    reader.close();
+                    org.json.JSONObject json = new org.json.JSONObject(sb.toString());
+                    org.json.JSONObject cur = json.getJSONObject("current");
+                    double temp = cur.getDouble("temperature_2m");
+                    int code = cur.getInt("weather_code");
+                    String icon = getWeatherIcon(code);
+                    String weatherStr = icon + " " + Math.round(temp) + "°F";
+                    lastWeatherFetch = System.currentTimeMillis();
+                    handler.post(() -> {
+                        if (tv != null) tv.setText(weatherStr);
+                    });
+                }
+                conn.disconnect();
+            } catch (Exception ignored) {}
+        }).start();
+    }
+
+    private static String getWeatherIcon(int code) {
+        if (code == 0) return "☀️";
+        if (code == 1 || code == 2) return "⛅";
+        if (code == 3) return "☁️";
+        if (code >= 45 && code <= 48) return "🌫️";
+        if (code >= 51 && code <= 67) return "🌧️";
+        if (code >= 71 && code <= 77) return "❄️";
+        if (code >= 80 && code <= 82) return "🌦️";
+        if (code >= 85 && code <= 86) return "🌨️";
+        if (code >= 95) return "⛈️";
+        return "⛅";
     }
 
     // ---- race-weekend panel (a theme's race_calendar) -----------------------------------------------

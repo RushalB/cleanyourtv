@@ -182,6 +182,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private TextView greeting;
     private View clockBlock;
     private View btnDashboard;
+    private boolean channelsVisible = false;
     private FrameLayout dashboardOverlay;
     private WebView dashboardWebView;
     private boolean dashboardLoaded = false;
@@ -470,6 +471,24 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (!cfg.dockTitle) hero.setVisibility(View.GONE);
         greeting = findViewById(R.id.greeting);
         clockBlock = findViewById(R.id.leftBlock);
+        if (clockBlock != null) {
+            clockBlock.setOnKeyListener((v, keyCode, event) -> {
+                if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
+                if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER) {
+                    showChannels();
+                    return true;
+                }
+                if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                    showDashboard();
+                    return true;
+                }
+                if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                    firstTopButton().requestFocus();
+                    return true;
+                }
+                return false;
+            });
+        }
         greetingColor = greeting.getCurrentTextColor();
         if (!cfg.showGreeting) greeting.setVisibility(View.GONE);
         if (cfg.headerWhite) {
@@ -802,8 +821,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 return true;
             }
             if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-                // Back to the dock tile Up came from, not wherever the focus finder lands.
-                focusTile(singleRow ? lastFocused : lastFocused % COLUMNS);
+                showChannels();
                 return true;
             }
             int firstButton = (btnDashboard != null && btnDashboard.getVisibility() == View.VISIBLE)
@@ -811,8 +829,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     : (btnInputs.getVisibility() == View.VISIBLE ? R.id.btnInputs : firstTopButton().getId());
             int leftButton = rtlMenuBar ? R.id.btnSettings : firstButton;
             int rightButton = rtlMenuBar ? firstButton : R.id.btnSettings;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) return v.getId() == leftButton;
-            return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == rightButton;
+            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT && v.getId() == leftButton) {
+                if (clockBlock != null) {
+                    clockBlock.requestFocus();
+                    return true;
+                }
+                return true;
+            }
+            if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == rightButton) return true;
         };
         if (btnDashboard != null) btnDashboard.setOnKeyListener(pillKeys);
         btnInputs.setOnKeyListener(pillKeys);
@@ -864,6 +888,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         // Not after recreate(): the launch intent survives it and would open the settings again.
         if (savedInstanceState == null && !openLauncherSettingsIfAsked(getIntent())) openInputsIfAsked(getIntent());
+        grid.post(() -> hideChannels(false));
     }
 
     /**
@@ -949,9 +974,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (stopped) {
             tileRefresh.onHomeAgain();
         } else {
-            // Still on screen (the quick panel was over it, or Home was already in front): the tiles are current,
-            // so only go back to the first one; rebuilding would replay the entrance animation for nothing.
-            grid.post(() -> focusTile(0));
+            // Still on screen: return to ambient home mode
+            hideChannels(true);
         }
     }
 
@@ -1156,6 +1180,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      * reload() the view that holds focus may no longer show the app it had.
      */
     private void restoreFocus() {
+        if (!channelsVisible) {
+            hideChannels(false);
+            tilesReady = true;
+            startPendingSettingsReorder();
+            showCardPrompt();
+            return;
+        }
         final boolean returnToLibrary = libraryFocusPending;
         final String returnKey = lastFocusedKey;
         final int returnSlot = lastFocused;
@@ -1690,14 +1721,79 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (dashboardOverlay == null || dashboardOverlay.getVisibility() != View.VISIBLE) return;
         dashboardOverlay.animate().alpha(0f).setDuration(180).withEndAction(() -> {
             dashboardOverlay.setVisibility(View.GONE);
-            focusTile(singleRow ? lastFocused : lastFocused % COLUMNS);
+            if (channelsVisible) {
+                focusTile(singleRow ? lastFocused : lastFocused % COLUMNS);
+            } else if (clockBlock != null) {
+                clockBlock.requestFocus();
+            } else {
+                firstTopButton().requestFocus();
+            }
         }).start();
+    }
+
+    public void showChannels() {
+        if (channelsVisible) return;
+        channelsVisible = true;
+        if (hero != null) {
+            hero.setVisibility(View.VISIBLE);
+            hero.setAlpha(0f);
+            hero.animate().alpha(1f).setDuration(260).start();
+        }
+        float offscreen = singleRow ? ((root != null && root.getHeight() > 0 ? root.getHeight() : 1080) * 0.55f)
+                : (root != null && root.getHeight() > 0 ? root.getHeight() : 1080);
+        if (offscreen <= 0) offscreen = 400 * density;
+        grid.animate()
+                .translationY(0f)
+                .setDuration(280)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f))
+                .withEndAction(() -> focusTile(singleRow ? lastFocused : lastFocused % COLUMNS))
+                .start();
+    }
+
+    public void hideChannels(boolean animate) {
+        channelsVisible = false;
+        hideGlass();
+        hideHero();
+        if (hero != null) {
+            if (animate) {
+                hero.animate().alpha(0f).setDuration(160).withEndAction(() -> hero.setVisibility(View.GONE)).start();
+            } else {
+                hero.setAlpha(0f);
+                hero.setVisibility(View.GONE);
+            }
+        }
+        float offscreen = singleRow ? ((root != null && root.getHeight() > 0 ? root.getHeight() : 1080) * 0.55f)
+                : (root != null && root.getHeight() > 0 ? root.getHeight() : 1080);
+        if (offscreen <= 0) offscreen = 400 * density;
+        if (animate) {
+            grid.animate()
+                    .translationY(offscreen)
+                    .setDuration(240)
+                    .setInterpolator(new android.view.animation.AccelerateInterpolator(1.4f))
+                    .start();
+        } else {
+            grid.animate().cancel();
+            grid.setTranslationY(offscreen);
+        }
+        if (clockBlock != null) {
+            clockBlock.requestFocus();
+        } else {
+            firstTopButton().requestFocus();
+        }
+    }
+
+    public void hideChannels() {
+        hideChannels(true);
     }
 
     @Override
     public void onBackPressed() {
         if (dashboardOverlay != null && dashboardOverlay.getVisibility() == View.VISIBLE) {
             hideDashboard();
+            return;
+        }
+        if (channelsVisible) {
+            hideChannels();
             return;
         }
         // Home screen: Back goes nowhere.
@@ -1738,6 +1834,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     @Override
     public void onTileFocused(int position, View card) {
+        if (!channelsVisible) {
+            hideGlass();
+            if (hero != null) hero.setAlpha(0f);
+            return;
+        }
         lastFocused = position;
         lastFocusedKey = adapter.keyAt(position);
         // Focus restored before the first layout (cold start): the tile has no size yet, and the glass
@@ -2355,9 +2456,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         int count = adapter.appCount();
         int target;
         if (singleRow) {
-            // One row: Up leaves for the top bar, Down has nowhere to go, and Left/Right walk the whole row,
-            // stopping at its two ends (the default focus search scrolls the row to the next tile).
-            if (keyCode == KeyEvent.KEYCODE_DPAD_UP) return false;
+            // One row: Up hides channels to return to ambient home mode
+            if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                hideChannels();
+                return true;
+            }
             if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) return true;
             boolean forward = rtlAppGrid ? keyCode == KeyEvent.KEYCODE_DPAD_LEFT : keyCode == KeyEvent.KEYCODE_DPAD_RIGHT;
             int last = adapter.focusablePosition(count - 1);
@@ -2381,7 +2484,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     rtlAppGrid, keyCode == KeyEvent.KEYCODE_DPAD_LEFT);
         }
         if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-            if (position < COLUMNS) return false;          // dock row: let focus move to the top bar
+            if (position < COLUMNS) {
+                hideChannels();
+                return true;
+            }
             target = position - COLUMNS;
         } else {
             int lastRowStart = ((count - 1) / COLUMNS) * COLUMNS;

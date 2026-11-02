@@ -170,6 +170,9 @@
                 android:layout_alignParentStart="true"
                 android:layout_toStartOf="@+id/topButtons"
                 android:layout_marginEnd="16dp"
+                android:focusable="true"
+                android:focusableInTouchMode="false"
+                android:defaultFocusHighlightEnabled="false"
                 android:orientation="vertical">
 
                 <!-- The header texts use gravity left, not start: the launcher lays out left to right
@@ -182,10 +185,10 @@
                     android:layout_height="wrap_content"
                     android:singleLine="true"
                     android:ellipsize="end"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginBottom="4dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginBottom="2dp"
                     android:textColor="#8CFFFFFF"
-                    android:textSize="22sp"
+                    android:textSize="18sp"
                     android:fontFamily="@string/font_medium"
                     android:letterSpacing="0.18"
                     android:textAllCaps="true" />
@@ -205,7 +208,7 @@
                         android:format12Hour="h:mm"
                         android:format24Hour="HH:mm"
                         android:textColor="#FFFFFFFF"
-                        android:textSize="150sp"
+                        android:textSize="116sp"
                         android:fontFamily="@string/font_light"
                         android:letterSpacing="-0.04"
                         android:includeFontPadding="false" />
@@ -216,11 +219,11 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_gravity="bottom"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginBottom="12dp"
                         android:format12Hour="a"
                         android:format24Hour=""
                         android:textColor="#B3FFFFFF"
-                        android:textSize="34sp"
+                        android:textSize="26sp"
                         android:fontFamily="@string/font_medium"
                         android:letterSpacing="0.08"
                         android:textAllCaps="true" />
@@ -233,7 +236,7 @@
                         android:visibility="gone" />
                 </LinearLayout>
 
-                <!-- 3x Glanceable Date & Weather Block positioned under the clock -->
+                <!-- 2x Glanceable Date & Weather Block positioned under the clock -->
                 <LinearLayout
                     android:id="@+id/dateWeatherBlock"
                     android:layout_width="wrap_content"
@@ -266,7 +269,7 @@
                         android:format12Hour="@string/date_format_home"
                         android:format24Hour="@string/date_format_home"
                         android:textColor="#A6FFFFFF"
-                        android:textSize="32sp"
+                        android:textSize="26sp"
                         android:fontFamily="@string/font_regular"
                         android:letterSpacing="0.08"
                         android:textAllCaps="true" />
@@ -275,7 +278,7 @@
                         android:id="@+id/weatherIndiaRow"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
+                        android:layout_marginTop="4dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical">
 
@@ -284,7 +287,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#D9FFFFFF"
-                            android:textSize="32sp"
+                            android:textSize="26sp"
                             android:fontFamily="@string/font_medium"
                             android:letterSpacing="0.02"
                             android:text="⛅ 57°F" />
@@ -292,17 +295,17 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="14dp"
-                            android:layout_marginEnd="14dp"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="12dp"
                             android:textColor="#66FFFFFF"
-                            android:textSize="32sp"
+                            android:textSize="26sp"
                             android:text="·" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#B3FFFFFF"
-                            android:textSize="32sp"
+                            android:textSize="26sp"
                             android:fontFamily="@string/font_regular"
                             android:letterSpacing="0.02"
                             android:text="🇮🇳 " />
@@ -315,7 +318,7 @@
                             android:format12Hour="h:mm a 'IST'"
                             android:format24Hour="HH:mm 'IST'"
                             android:textColor="#D9FFFFFF"
-                            android:textSize="32sp"
+                            android:textSize="26sp"
                             android:fontFamily="@string/font_medium"
                             android:letterSpacing="0.02" />
                     </LinearLayout>

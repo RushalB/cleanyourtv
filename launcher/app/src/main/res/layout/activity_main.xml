@@ -215,9 +215,10 @@
                             android:format12Hour="h:mm"
                             android:format24Hour="HH:mm"
                             android:textColor="#FFFFFFFF"
+                            android:alpha="0.8"
                             android:textSize="116sp"
-                            android:fontFamily="@string/font_light"
-                            android:letterSpacing="-0.04"
+                            android:fontFamily="@font/sf_pro_rounded_medium"
+                            android:letterSpacing="-0.02"
                             android:includeFontPadding="false" />
 
                         <TextClock
@@ -230,6 +231,7 @@
                             android:format12Hour="a"
                             android:format24Hour=""
                             android:textColor="#B3FFFFFF"
+                            android:alpha="0.8"
                             android:textSize="26sp"
                             android:fontFamily="@string/font_medium"
                             android:letterSpacing="0.08"

@@ -1,0 +1,33 @@
+{
+  "dock_apps": [
+    "com.netflix.ninja",
+    "com.amazon.avod",
+    "com.amazon.firetv.youtube",
+    "com.disney.disneyplus",
+    "com.apple.atve.amazon.appletv",
+    "com.spotify.tv.android",
+    "com.hulu.plus",
+    "com.peacock.peacockfiretv"
+  ],
+  "stock_home_redirect": "com.amazon.tv.launcher",
+  "power_on_home_always": true,
+  "home_long_press_home": true,
+  "single_row": true,
+  "dock_row": true,
+  "dock_band": false,
+  "columns": 5,
+  "rows_below_dock": 0,
+  "dock_title": true,
+  "glass_style": "rim",
+  "ambient_glow": true,
+  "app_glow": true,
+  "icon_only_buttons": true,
+  "icon_only_inputs": true,
+  "wifi_status_color": true,
+  "background_color": "#06050C",
+  "wallpaper": true,
+  "wallpaper_rotation_minutes": 0,
+  "wallpaper_dim": 5,
+  "wallpaper_true_color": true,
+  "reduced_motion": false
+}

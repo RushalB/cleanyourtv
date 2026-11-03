@@ -2754,9 +2754,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     org.json.JSONObject json = new org.json.JSONObject(sb.toString());
                     org.json.JSONObject cur = json.getJSONObject("current");
                     double temp = cur.getDouble("temperature_2m");
-                    int code = cur.getInt("weather_code");
-                    String icon = getWeatherIcon(code);
-                    String weatherStr = icon + " " + Math.round(temp) + "°F";
+                    String weatherStr = Math.round(temp) + "°F";
                     lastWeatherFetch = System.currentTimeMillis();
                     handler.post(() -> {
                         if (tv != null) tv.setText(weatherStr);
@@ -2765,19 +2763,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 conn.disconnect();
             } catch (Exception ignored) {}
         }).start();
-    }
-
-    private static String getWeatherIcon(int code) {
-        if (code == 0) return "☀️";
-        if (code == 1 || code == 2) return "⛅";
-        if (code == 3) return "☁️";
-        if (code >= 45 && code <= 48) return "🌫️";
-        if (code >= 51 && code <= 67) return "🌧️";
-        if (code >= 71 && code <= 77) return "❄️";
-        if (code >= 80 && code <= 82) return "🌦️";
-        if (code >= 85 && code <= 86) return "🌨️";
-        if (code >= 95) return "⛈️";
-        return "⛅";
     }
 
     // ---- race-weekend panel (a theme's race_calendar) -----------------------------------------------

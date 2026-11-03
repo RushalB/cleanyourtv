@@ -1,6 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   CleanYourTV Family Journal — Hearth & Wildflower Edition
-   Application Logic & PocketBase Sync
+   CleanYourTV Embedded Dashboard — Application Logic
    ═══════════════════════════════════════════════════════════ */
 
 const $ = (sel) => document.querySelector(sel);
@@ -13,40 +12,63 @@ function createElement(tag, className, textContent) {
   return el;
 }
 
+// ── PocketBase API & Dashboard To-Dos ─────────────────────
+
 const PB_API_URL = 'http://192.168.4.32:8090/api/collections/todos/records';
 
-const FALLBACK_TODOS = [
-  { text: 'Set up home database server on Mac', done: false, tag: 'urgent' },
-  { text: 'Migrate PocketBase to Raspberry Pi', done: false },
-  { text: 'Test initial server prototype', done: true },
-  { text: 'Review pull requests & merge updates', done: false },
-  { text: 'Schedule weekly design alignment', done: false },
+const FALLBACK_TODAY = [
+  { text: 'Buy groceries', done: true },
+  { text: 'Morning workout', done: false, tag: 'urgent' },
+  { text: 'Call dentist for appointment', done: false },
+  { text: 'Review pull requests', done: true },
+  { text: 'Cook dinner — try new recipe', done: false },
+];
+
+const FALLBACK_WEEK = [
+  { text: 'Car oil change', done: false, tag: 'normal' },
+  { text: 'Submit quarterly report', done: false, tag: 'urgent' },
+  { text: 'Date night — make reservation', done: false },
+  { text: 'Clean garage', done: false },
 ];
 
 const ALL_RECIPES = [
-  { name: 'Garlic Butter Tuscan Salmon', type: 'Dinner', time: '25m' },
-  { name: 'Lemon Herb Roasted Chicken', type: 'Dinner', time: '35m' },
-  { name: 'Cast-Iron Herb Butter Ribeye', type: 'Idea', time: '30m' },
-  { name: 'Thai Coconut Red Curry', type: 'Idea', time: '30m' },
-  { name: 'Spicy Sesame Peanut Noodles', type: 'Dinner', time: '20m' },
-  { name: 'Mediterranean Baked Cod', type: 'Idea', time: '25m' },
-  { name: 'Wild Mushroom Truffle Risotto', type: 'Idea', time: '40m' },
+  { name: 'Creamy Garlic Butter Tuscan Salmon', emoji: '🐟', bg: '#2A1810', meta: 'Pan-seared salmon with sun-dried tomatoes & spinach in garlic cream sauce', time: '25 min' },
+  { name: 'Sheet Pan Lemon Herb Chicken & Veggies', emoji: '🍗', bg: '#1A2418', meta: 'Tender chicken thighs with zucchini, bell peppers, asparagus & rosemary', time: '35 min' },
+  { name: 'Thai Coconut Red Curry with Tofu', emoji: '🍲', bg: '#2A1A10', meta: 'Rich coconut broth with crispy tofu, bamboo shoots & jasmine rice', time: '30 min' },
+  { name: 'Mushroom Risotto with Truffle Oil', emoji: '🍄', bg: '#201A14', meta: 'Creamy Arborio rice with wild cremini, parmesan & white truffle drizzle', time: '40 min' },
+  { name: 'Spicy Peanut Noodles with Crispy Veggies', emoji: '🍜', bg: '#261814', meta: 'Udon noodles in sesame peanut sauce with scallions, edamame & chili oil', time: '20 min' },
+  { name: 'Mediterranean Baked Cod with Olives & Feta', emoji: '🫒', bg: '#162228', meta: 'Flaky cod with cherry tomatoes, kalamata olives, capers & fresh oregano', time: '25 min' },
+  { name: 'Korean Bibimbap with Fried Egg', emoji: '🍚', bg: '#241818', meta: 'Warm rice bowl with sautéed spinach, mushrooms, carrots & gochujang sauce', time: '30 min' },
+  { name: 'Cast-Iron Ribeye with Herb Compound Butter', emoji: '🥩', bg: '#2A1212', meta: 'Reverse-seared steak with garlic butter, roasted asparagus & baby potatoes', time: '35 min' },
 ];
 
 const CALENDAR_EVENTS = [
-  { time: '10:00 AM', title: 'Team Sync & Standup', duration: '30m' },
-  { time: '01:30 PM', title: 'Project Architecture Review', duration: '1h' },
-  { time: '04:00 PM', title: 'Design Check-in', duration: '45m' },
+  {
+    day: 'TODAY',
+    events: [
+      { time: '10:00 AM', title: 'Team Sync & Standup', duration: '30 min', dot: 'lavender' },
+      { time: '1:30 PM',  title: 'Project Architecture Review', duration: '1 hr', dot: 'rose' },
+      { time: '4:00 PM',  title: 'Design Check-in', duration: '45 min', dot: 'peach' },
+    ],
+  },
+  {
+    day: 'TOMORROW',
+    events: [
+      { time: '9:30 AM',  title: 'Client Demo & Feedback', duration: '45 min', dot: 'sky' },
+      { time: '2:00 PM',  title: 'Sprint Planning', duration: '1 hr', dot: 'mint' },
+    ],
+  },
 ];
 
 function setSyncStatus(online) {
   const dot = $('#pb-status-dot');
-  const label = $('#pb-status-label');
-  if (dot) {
-    dot.classList.toggle('offline', !online);
-  }
-  if (label) {
-    label.textContent = online ? 'Synced' : 'Local';
+  if (!dot) return;
+  if (online) {
+    dot.classList.remove('offline');
+    dot.title = 'PocketBase Online & Synced';
+  } else {
+    dot.classList.add('offline');
+    dot.title = 'PocketBase Offline (showing fallback)';
   }
 }
 
@@ -82,35 +104,42 @@ async function updatePocketBaseStatus(id, newStatus) {
 
 function categorizeTodo(item) {
   const isArchived = item.status === 'archived';
-  const isUrgent = /\[urgent\]|\(urgent\)|#urgent/i.test(item.task);
-  const isWeek = /\[week\]|\(week\)|#week/i.test(item.task);
-  const cleanText = item.task.replace(/\[(urgent|week)\]|\((urgent|week)\)|#(urgent|week)/gi, '').trim();
+  const isWeekTagged = /\[week\]|\(week\)|#week/i.test(item.task);
+  const cleanText = item.task.replace(/\[week\]|\(week\)|#week/gi, '').trim();
 
   let tag = null;
-  if (isUrgent) tag = 'urgent';
-  else if (isWeek) tag = 'week';
-  else if (isArchived) tag = 'archived';
+  if (isArchived) tag = 'archived';
+  else if (isWeekTagged) tag = 'week';
 
   return {
     id: item.id,
     text: cleanText || item.task,
+    rawText: item.task,
     done: item.status === 'done',
     status: item.status,
     tag: tag,
+    isWeek: isArchived || isWeekTagged,
   };
 }
 
 function createTodoItem(item, onToggle) {
-  const li = createElement('li', `todo-row${item.done ? ' done' : ''}`);
+  const li = createElement('li', `todo-item${item.done ? ' done' : ''}`);
   li.setAttribute('tabindex', '0');
   if (item.id) li.dataset.id = item.id;
 
-  const badgeHTML = item.tag ? `<span class="todo-badge">${item.tag}</span>` : '';
+  let tagHTML = '';
+  if (item.tag) {
+    tagHTML = `<span class="todo-item__tag todo-item__tag--${item.tag}">${item.tag}</span>`;
+  }
 
   li.innerHTML = `
-    <div class="todo-circle"></div>
-    <span class="todo-text">${item.text}</span>
-    ${badgeHTML}
+    <div class="todo-item__check">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="todo-item__content">
+      <span class="todo-item__text">${item.text}</span>
+    </div>
+    ${tagHTML}
   `;
 
   const toggle = () => {
@@ -127,70 +156,51 @@ function createTodoItem(item, onToggle) {
     }
   });
 
-  li.addEventListener('focus', () => {
-    $$('.todo-row').forEach(r => r.classList.remove('focused'));
-    li.classList.add('focused');
-    li.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  });
-
-  li.addEventListener('blur', () => {
-    li.classList.remove('focused');
-  });
-
   return li;
 }
 
 async function renderTodos() {
-  const list = $('#todo-list');
+  const unifiedList = $('#todo-list');
   const countBadge = $('#todo-display-badge');
-  const focusedId = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.id : null;
   const items = await fetchPocketBaseTodos();
 
-  const updateCounts = () => {
-    const allRows = $$('.todo-row');
-    const doneRows = $$('.todo-row.done');
-    const openCount = allRows.length - doneRows.length;
-    if (countBadge) {
-      countBadge.textContent = `${openCount} Open · ${doneRows.length} Done`;
-    }
-  };
-
   const handleToggle = (item) => {
-    updateCounts();
     if (!item.id) return;
     const nextStatus = item.done ? 'done' : 'pending';
     updatePocketBaseStatus(item.id, nextStatus);
   };
 
-  if (!list) return;
-  list.innerHTML = '';
+  if (unifiedList) {
+    unifiedList.innerHTML = '';
 
-  if (items && items.length > 0) {
-    const sorted = [...items].sort((a, b) => {
-      const order = { 'pending': 1, 'done': 2, 'archived': 3 };
-      return (order[a.status] || 9) - (order[b.status] || 9);
-    });
+    if (items && items.length > 0) {
+      const sorted = [...items].sort((a, b) => {
+        const order = { 'pending': 1, 'done': 2, 'archived': 3 };
+        return (order[a.status] || 9) - (order[b.status] || 9);
+      });
 
-    sorted.forEach(raw => {
-      const parsed = categorizeTodo(raw);
-      list.appendChild(createTodoItem(parsed, handleToggle));
-    });
-  } else {
-    FALLBACK_TODOS.forEach(item => {
-      list.appendChild(createTodoItem(item, handleToggle));
-    });
+      const pendingCount = items.filter(i => i.status === 'pending').length;
+      if (countBadge) {
+        countBadge.textContent = `${pendingCount} open`;
+      }
+
+      sorted.slice(0, 14).forEach(raw => {
+        const parsed = categorizeTodo(raw);
+        unifiedList.appendChild(createTodoItem(parsed, handleToggle));
+      });
+    } else {
+      const fallback = [...FALLBACK_TODAY, ...FALLBACK_WEEK];
+      if (countBadge) countBadge.textContent = `${fallback.length} tasks`;
+      fallback.slice(0, 14).forEach(item => {
+        unifiedList.appendChild(createTodoItem(item, handleToggle));
+      });
+    }
   }
+}
 
-  updateCounts();
-
-  // Restore focus after refresh
-  const rows = $$('.todo-row');
-  if (focusedId) {
-    const match = rows.find(r => r.dataset.id === focusedId);
-    if (match) match.focus();
-  } else if (rows.length > 0 && document.activeElement !== $('#dashboard-back-btn')) {
-    rows[0].focus();
-  }
+function getRandomRecipes(count = 3) {
+  const shuffled = [...ALL_RECIPES].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
 }
 
 function renderRecipes() {
@@ -198,15 +208,17 @@ function renderRecipes() {
   if (!container) return;
   container.innerHTML = '';
 
-  const picks = ALL_RECIPES.slice(0, 3);
-  picks.forEach(recipe => {
-    const row = createElement('div', 'meal-row');
-    row.innerHTML = `
-      <span class="meal-tag">${recipe.type}</span>
-      <span class="meal-name">${recipe.name}</span>
-      <span class="meal-time">${recipe.time}</span>
+  const recipes = getRandomRecipes(3);
+  recipes.forEach(recipe => {
+    const card = createElement('div', 'recipe-card');
+    card.innerHTML = `
+      <div class="recipe-card__emoji">${recipe.emoji}</div>
+      <div class="recipe-card__info">
+        <div class="recipe-card__name">${recipe.name}</div>
+      </div>
+      <div class="recipe-card__time">${recipe.time}</div>
     `;
-    container.appendChild(row);
+    container.appendChild(card);
   });
 }
 
@@ -215,164 +227,43 @@ function renderCalendar() {
   if (!container) return;
   container.innerHTML = '';
 
-  CALENDAR_EVENTS.slice(0, 3).forEach(event => {
-    const row = createElement('div', 'timeline-row');
-    row.innerHTML = `
-      <span class="time-stamp">${event.time}</span>
-      <span class="event-title">${event.title}</span>
-      <span class="event-dur">${event.duration}</span>
+  const allEvents = [];
+  CALENDAR_EVENTS.forEach(dayGroup => {
+    dayGroup.events.forEach(event => allEvents.push(event));
+  });
+
+  allEvents.slice(0, 3).forEach(event => {
+    const el = createElement('div', 'calendar-event');
+    el.innerHTML = `
+      <span class="calendar-event__time">${event.time}</span>
+      <span class="calendar-event__dot calendar-event__dot--${event.dot}"></span>
+      <span class="calendar-event__title">${event.title}</span>
+      <span class="calendar-event__duration">${event.duration}</span>
     `;
-    container.appendChild(row);
+    container.appendChild(el);
   });
 }
 
 function updateDashboardDate() {
-  const dateEl = $('#dashboard-date');
-  const dayEl = $('#dashboard-day');
-  const clockEl = $('#dashboard-clock');
-  const ampmEl = $('#dashboard-clock-ampm');
+  const el = $('#dashboard-date');
+  if (!el) return;
   const now = new Date();
-
-  if (dateEl) {
-    dateEl.textContent = now.toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric'
-    });
-  }
-
-  const calMonth = $('#cal-month');
-  const calDay = $('#cal-day');
-  const menuDate = $('#mac-menu-date');
-  const dockMonth = $('.dock-cal-month');
-  const dockDay = $('.dock-cal-day');
-
-  if (calMonth) calMonth.textContent = now.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-  if (calDay) calDay.textContent = String(now.getDate());
-  if (dockMonth) dockMonth.textContent = now.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-  if (dockDay) dockDay.textContent = String(now.getDate());
-  if (menuDate) {
-    menuDate.textContent = now.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
-    });
-  }
-
-  if (dayEl) {
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-    const pastDaysOfYear = (now - startOfYear) / 86400000;
-    const weekNum = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
-    dayEl.textContent = `Week ${weekNum}`;
-  }
-
-  if (clockEl) {
-    let hours = now.getHours();
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    if (hours === 0) hours = 12;
-    clockEl.textContent = `${hours}:${minutes}`;
-    if (ampmEl) ampmEl.textContent = ampm;
-  }
+  el.textContent = now.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric'
+  });
 }
 
-function getWeatherCondition(code, isDay) {
-  switch (code) {
-    case 0:
-      return { label: isDay ? 'Sunny' : 'Clear', icon: isDay ? '☀️' : '🌙' };
-    case 1:
-      return { label: isDay ? 'Mostly Sunny' : 'Mostly Clear', icon: isDay ? '🌤️' : '🌙' };
-    case 2:
-      return { label: 'Partly Cloudy', icon: isDay ? '⛅' : '☁️' };
-    case 3:
-      return { label: 'Overcast', icon: '☁️' };
-    case 45: case 48:
-      return { label: 'Foggy', icon: '🌫️' };
-    case 51: case 53: case 55:
-      return { label: 'Drizzle', icon: '🌦️' };
-    case 61: case 63: case 65:
-      return { label: 'Rain', icon: '🌧️' };
-    case 66: case 67:
-      return { label: 'Freezing Rain', icon: '🌧️' };
-    case 71: case 73: case 75:
-      return { label: 'Snow', icon: '🌨️' };
-    case 77:
-      return { label: 'Snow Grains', icon: '🌨️' };
-    case 80: case 81: case 82:
-      return { label: 'Showers', icon: '🌧️' };
-    case 85: case 86:
-      return { label: 'Snow Showers', icon: '🌨️' };
-    case 95: case 96: case 99:
-      return { label: 'Thunderstorm', icon: '⛈️' };
-    default:
-      return { label: isDay ? 'Fair' : 'Clear', icon: isDay ? '🌤️' : '🌙' };
-  }
-}
-
-function renderWeather(data) {
-  const tempEl = $('#weather-temp');
-  const condEl = $('#weather-cond');
-  const feelsEl = $('#weather-feels');
-  const locEl = $('#dashboard-location');
-
-  if (tempEl) tempEl.textContent = `${data.temp}°`;
-  if (condEl) {
-    const cond = getWeatherCondition(data.code, data.isDay);
-    condEl.textContent = `${cond.icon} ${cond.label}`;
-  }
-  if (feelsEl) feelsEl.textContent = `Feels ${data.feelsLike}°`;
-  if (locEl && data.city) locEl.textContent = data.city;
-}
-
-async function fetchWeather() {
-  const cached = localStorage.getItem('journal_weather');
-  if (cached) {
-    try {
-      renderWeather(JSON.parse(cached));
-    } catch (e) {}
-  }
-
-  try {
-    const lat = 41.892;
-    const lon = -87.6416;
-    const city = 'Chicago';
-
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,is_day,weather_code&temperature_unit=celsius&timezone=auto`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const cur = data.current;
-
-    const weatherData = {
-      temp: Math.round(cur.temperature_2m),
-      feelsLike: Math.round(cur.apparent_temperature),
-      isDay: cur.is_day === 1,
-      code: cur.weather_code,
-      city: city
-    };
-
-    localStorage.setItem('journal_weather', JSON.stringify(weatherData));
-    renderWeather(weatherData);
-  } catch (err) {
-    console.warn('Weather fetch failed:', err);
-    if (!cached) {
-      renderWeather({
-        temp: 14,
-        feelsLike: 12,
-        isDay: false,
-        code: 0,
-        city: 'Chicago'
-      });
-    }
-  }
-}
+// ── Close / Back Action ───────────────────────────────────
 
 function closeDashboard() {
   if (window.AndroidBridge && typeof window.AndroidBridge.closeDashboard === 'function') {
     window.AndroidBridge.closeDashboard();
   }
 }
+
+// ── Remote D-Pad Grid Navigation ─────────────────────────
 
 function initDpadNavigation() {
   window.addEventListener('keydown', (e) => {
@@ -382,63 +273,49 @@ function initDpadNavigation() {
       return;
     }
 
-    const items = $$('.todo-row');
+    const items = $$('.todo-item');
     const backBtn = $('#dashboard-back-btn');
-    const returnBtn = $('#mac-return-btn');
-    const dockExit = $('#dock-exit-btn');
     const focused = document.activeElement;
 
+    if (!items.length) return;
+
     if (e.key === 'ArrowDown') {
-      if (focused === backBtn || focused === returnBtn) {
-        if (items.length > 0) {
-          items[0].focus();
-          e.preventDefault();
-        }
+      if (focused === backBtn) {
+        items[0].focus();
+        e.preventDefault();
       } else {
         const idx = items.indexOf(focused);
-        if (idx >= 0 && idx + 1 < items.length) {
-          items[idx + 1].focus();
-          e.preventDefault();
-        } else if (idx === items.length - 1 && dockExit) {
-          dockExit.focus();
+        if (idx >= 0 && idx + 2 < items.length) {
+          items[idx + 2].focus();
           e.preventDefault();
         }
       }
     } else if (e.key === 'ArrowUp') {
-      if (focused === dockExit) {
-        if (items.length > 0) {
-          items[items.length - 1].focus();
-          e.preventDefault();
-        }
-      } else {
-        const idx = items.indexOf(focused);
-        if (idx === 0) {
-          if (backBtn) backBtn.focus();
-          e.preventDefault();
-        } else if (idx > 0) {
-          items[idx - 1].focus();
-          e.preventDefault();
-        }
+      const idx = items.indexOf(focused);
+      if (idx <= 1) {
+        backBtn.focus();
+        e.preventDefault();
+      } else if (idx > 1) {
+        items[idx - 2].focus();
+        e.preventDefault();
       }
     } else if (e.key === 'ArrowRight') {
-      if (focused === backBtn && returnBtn) {
-        returnBtn.focus();
+      const idx = items.indexOf(focused);
+      if (idx >= 0 && idx % 2 === 0 && idx + 1 < items.length) {
+        items[idx + 1].focus();
         e.preventDefault();
-      } else {
-        const idx = items.indexOf(focused);
-        if (idx >= 0 && returnBtn) {
-          returnBtn.focus();
-          e.preventDefault();
-        }
       }
     } else if (e.key === 'ArrowLeft') {
-      if (focused === returnBtn) {
-        if (backBtn) backBtn.focus();
+      const idx = items.indexOf(focused);
+      if (idx >= 0 && idx % 2 === 1) {
+        items[idx - 1].focus();
         e.preventDefault();
       }
     }
   });
 }
+
+// ── Initialization ────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
   const backBtn = $('#dashboard-back-btn');
@@ -452,42 +329,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const returnBtn = $('#mac-return-btn');
-  if (returnBtn) {
-    returnBtn.addEventListener('click', closeDashboard);
-    returnBtn.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13 || e.keyCode === 23) {
-        e.preventDefault();
-        closeDashboard();
-      }
-    });
-  }
-
-  const dockExit = $('#dock-exit-btn');
-  if (dockExit) {
-    dockExit.addEventListener('click', closeDashboard);
-    dockExit.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13 || e.keyCode === 23) {
-        e.preventDefault();
-        closeDashboard();
-      }
-    });
-  }
-
   renderTodos();
   renderRecipes();
   renderCalendar();
   updateDashboardDate();
-  fetchWeather();
   initDpadNavigation();
 
+  // Focus the first item or back button by default
   setTimeout(() => {
-    const firstItem = $('.todo-row');
+    const firstItem = $('.todo-item');
     if (firstItem) firstItem.focus();
     else if (backBtn) backBtn.focus();
   }, 200);
 
-  setInterval(updateDashboardDate, 10000);
+  // Auto-refresh todos every 15s
   setInterval(renderTodos, 15000);
-  setInterval(fetchWeather, 15 * 60 * 1000);
 });

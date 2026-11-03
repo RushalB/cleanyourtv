@@ -21,7 +21,7 @@ html, body {
 }
 
 body.macos-desktop {
-  background: radial-gradient(circle at 50% 20%, rgba(25, 35, 65, 0.72), rgba(8, 12, 22, 0.88));
+  background: radial-gradient(circle at 75% 20%, #20283e 0%, #111624 45%, #080a12 100%);
   position: relative;
   width: 100vw;
   height: 100vh;
@@ -244,11 +244,11 @@ body.macos-desktop {
    ═══════════════════════════════════════════════════════════════════════ */
 
 .mac-window {
-  width: 86vw;
-  max-width: 1360px;
-  height: 72vh;
+  width: 76vw;
+  max-width: 1240px;
+  height: 74vh;
   max-height: 720px;
-  background: rgba(28, 32, 42, 0.85);
+  background: rgba(28, 32, 42, 0.88);
   backdrop-filter: blur(45px) saturate(210%);
   -webkit-backdrop-filter: blur(45px) saturate(210%);
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -258,6 +258,7 @@ body.macos-desktop {
   flex-direction: column;
   overflow: hidden;
   z-index: 20;
+  margin-right: 64px;
 }
 
 /* Window Titlebar */

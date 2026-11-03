@@ -208,7 +208,7 @@
                         android:orientation="horizontal"
                         android:baselineAligned="true">
 
-                        <TextClock
+                        <com.gathin.tvhome.DevanagariClock
                             android:id="@+id/clock"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -217,7 +217,7 @@
                             android:textColor="#FFFFFFFF"
                             android:alpha="0.8"
                             android:textSize="116sp"
-                            android:fontFamily="@font/sf_pro_rounded_medium"
+                            android:fontFamily="@font/noto_sans_devanagari_bold"
                             android:letterSpacing="-0.02"
                             android:includeFontPadding="false" />
 

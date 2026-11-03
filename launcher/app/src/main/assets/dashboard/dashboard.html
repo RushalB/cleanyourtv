@@ -3,78 +3,196 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Family Journal</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Kalam:wght@300;400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <title>MacBook Desktop Dashboard</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
-  <div id="dashboard" class="view active">
-    <div class="canvas">
-      <header class="masthead">
-        <div class="masthead-left">
-          <div class="date-row">
-            <h1 class="date-heading" id="dashboard-date">Tuesday, October 29</h1>
-            <span class="stamp-badge" id="dashboard-day">Week 44</span>
-          </div>
-          <div class="masthead-meta">
-            <span id="pb-status-dot" class="sync-dot" title="PocketBase Status"></span>
-            <span id="pb-status-label">Synced</span>
-            <span>·</span>
-            <span id="dashboard-location">Chicago</span>
-          </div>
+<body class="macos-desktop">
+
+  <!-- macOS Top Menu Bar -->
+  <header class="mac-menubar">
+    <div class="menubar-left">
+      <div class="apple-logo" title="Apple Menu">
+        <svg width="15" height="17" viewBox="0 0 170 170" fill="currentColor">
+          <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.58-7.71-11.65-14.01-6.1-9.46-10.9-20.08-14.42-31.86-3.52-11.78-5.28-23.01-5.28-33.69 0-14.13 3.59-25.92 10.77-35.37 7.18-9.46 16.21-14.28 27.09-14.47 5.11 0 10.77 1.47 16.98 4.41 6.2 2.94 10.15 4.47 11.83 4.58 2.07-.11 6.31-1.74 12.74-4.9 6.42-3.15 12.35-4.52 17.78-4.13 13.92.76 24.8 5.76 32.64 15.01-12.18 7.39-18.17 17.3-17.96 29.72.22 9.79 3.92 18.06 11.1 24.81 7.18 6.74 15.77 10.44 25.78 11.1-2.18 6.52-4.8 13.05-7.85 19.59zM119.22 31.87c0-7.72 2.72-15.01 8.16-21.86 5.44-6.85 12.18-10.87 20.24-12.07.22 1.09.33 2.18.33 3.26 0 7.83-2.83 15.23-8.49 22.19-5.66 6.96-12.62 10.99-20.9 12.08-.22-1.2-.34-2.4-.34-3.6z"/>
+        </svg>
+      </div>
+      <span class="app-name">Finder</span>
+      <nav class="mac-menus">
+        <span class="menu-item">File</span>
+        <span class="menu-item">Edit</span>
+        <span class="menu-item">View</span>
+        <span class="menu-item">Go</span>
+        <span class="menu-item">Window</span>
+        <span class="menu-item">Help</span>
+      </nav>
+    </div>
+
+    <div class="menubar-right">
+      <div class="status-item sync-pill" title="PocketBase Status">
+        <span id="pb-status-dot" class="mac-dot online"></span>
+        <span id="pb-status-label">Synced</span>
+      </div>
+      <div class="status-item location-pill" id="dashboard-location">Chicago</div>
+      <div class="status-item weather-pill" id="weather-card">
+        <span id="weather-cond">Loading...</span>
+        <span id="weather-temp">--°</span>
+      </div>
+      <div class="status-item wifi-icon" title="Wi-Fi">
+        <svg width="15" height="12" viewBox="0 0 16 12" fill="currentColor">
+          <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-4.24-3.54a6 6 0 0 1 8.48 0l-1.06 1.06a4.5 4.5 0 0 0-6.36 0L3.76 5.96zm-2.83-2.83a10 10 0 0 1 14.14 0l-1.06 1.06a8.5 8.5 0 0 0-12.02 0L.93 3.13z"/>
+        </svg>
+      </div>
+      <div class="status-item battery-icon" title="Battery 100%">
+        <span class="battery-body"><span class="battery-level"></span></span>
+        <span class="battery-tip"></span>
+      </div>
+      <div class="status-item control-center" title="Control Center">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+          <rect x="1" y="2" width="14" height="4" rx="2" fill-opacity="0.3"/>
+          <circle cx="5" cy="4" r="2.5" fill="currentColor"/>
+          <rect x="1" y="10" width="14" height="4" rx="2" fill-opacity="0.3"/>
+          <circle cx="11" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="status-item menubar-clock">
+        <span id="mac-menu-date">Mon Nov 2</span>
+        <span id="dashboard-clock">8:30</span>
+        <span class="clock-ampm" id="dashboard-clock-ampm">PM</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Desktop Surface -->
+  <main class="desktop-surface">
+    <!-- Desktop Icons (Right Column) -->
+    <div class="desktop-icons">
+      <div class="desktop-icon" tabindex="0">
+        <div class="icon-disk"></div>
+        <span class="icon-label">Macintosh HD</span>
+      </div>
+      <div class="desktop-icon" tabindex="0">
+        <div class="icon-folder"></div>
+        <span class="icon-label">Projects</span>
+      </div>
+      <div class="desktop-icon" tabindex="0">
+        <div class="icon-doc"></div>
+        <span class="icon-label">Family Journal</span>
+      </div>
+    </div>
+
+    <!-- Centered MacBook Window -->
+    <section class="mac-window" id="main-window">
+      <!-- Titlebar with Traffic Lights -->
+      <div class="window-titlebar">
+        <div class="traffic-lights">
+          <button class="traffic-btn close" id="dashboard-back-btn" tabindex="0" title="Close (↩ Return to TV)">
+            <span class="symbol">✕</span>
+          </button>
+          <button class="traffic-btn minimize" tabindex="-1" title="Minimize">
+            <span class="symbol">−</span>
+          </button>
+          <button class="traffic-btn zoom" tabindex="-1" title="Zoom">
+            <span class="symbol">＋</span>
+          </button>
         </div>
 
-        <div class="masthead-right">
-          <div class="clock-weather-group">
-            <div class="clock-hero">
-              <span id="dashboard-clock">--:--</span>
-              <span class="clock-ampm" id="dashboard-clock-ampm"></span>
-            </div>
-            <div class="weather-hero" id="weather-card">
-              <span class="temp" id="weather-temp">--°</span>
-              <div class="meta-col">
-                <span class="cond-line" id="weather-cond">Loading...</span>
-                <span class="feel-line" id="weather-feels">Feels --°</span>
-              </div>
-            </div>
-          </div>
-          <button class="home-tab" id="dashboard-back-btn" tabindex="0" title="Back to Launcher">↩ Home</button>
+        <div class="window-title">
+          <span class="folder-title-icon">📝</span>
+          <span class="title-text">Family Journal — Reminders & Schedule</span>
+          <span class="stamp-badge" id="dashboard-day">Week 45</span>
         </div>
-      </header>
 
-      <div class="spread">
-        <!-- Column 1 (Left): Schedule & Nourish -->
-        <aside class="col-left">
-          <div>
-            <div class="section-header">
-              <span>Today's Rhythm</span>
-              <span class="meta" id="schedule-count">3 Events</span>
+        <div class="titlebar-actions">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <span class="search-ph">Search</span>
+          </div>
+          <span class="window-badge" id="todo-display-badge">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Window Body (Split View) -->
+      <div class="window-body">
+        <!-- Sidebar -->
+        <aside class="mac-sidebar">
+          <div class="sidebar-group">
+            <div class="group-title">
+              <span>TODAY'S RHYTHM</span>
+              <span class="group-count" id="schedule-count">3 Events</span>
             </div>
-            <div id="calendar-events"></div>
+            <div id="calendar-events" class="sidebar-list"></div>
           </div>
 
-          <div>
-            <div class="section-header">
-              <span>On the Table</span>
-              <span class="meta">Dinner Ideas</span>
+          <div class="sidebar-group">
+            <div class="group-title">
+              <span>ON THE TABLE</span>
+              <span class="group-count">DINNER</span>
             </div>
-            <div id="recipe-list"></div>
+            <div id="recipe-list" class="sidebar-list"></div>
+          </div>
+
+          <div class="sidebar-footer">
+            <div class="mac-mini-calendar">
+              <span class="cal-month" id="cal-month">NOV</span>
+              <span class="cal-day" id="cal-day">2</span>
+              <span class="cal-weekday" id="dashboard-date">Monday, November 2</span>
+            </div>
+            <div class="weather-meta-sub" id="weather-feels">Feels --°</div>
           </div>
         </aside>
 
-        <!-- Column 2 (Right): Daily Focus & Tasks -->
-        <section class="col-right">
-          <div class="section-header">
-            <span>Daily Focus & Tasks</span>
-            <span class="meta" id="todo-display-badge">Loading...</span>
+        <!-- Main Content Area: Reminders.app Style -->
+        <section class="mac-main-content">
+          <div class="content-header">
+            <div class="header-titles">
+              <h2 class="section-title">Daily Focus & Tasks</h2>
+              <p class="section-subtitle">Synced via PocketBase · Press OK / Enter to toggle</p>
+            </div>
+            <button class="mac-button-return" id="mac-return-btn" tabindex="0">↩ Return to TV</button>
           </div>
-          <ul class="todo-list" id="todo-list"></ul>
+
+          <div class="todo-scroll-container">
+            <ul class="todo-list" id="todo-list"></ul>
+          </div>
         </section>
       </div>
-    </div>
-  </div>
+    </section>
+
+    <!-- macOS Floating Dock -->
+    <footer class="mac-dock">
+      <div class="dock-container">
+        <div class="dock-item" title="Finder" tabindex="0">
+          <div class="dock-icon finder"></div>
+        </div>
+        <div class="dock-item" title="Launchpad" tabindex="0">
+          <div class="dock-icon launchpad"></div>
+        </div>
+        <div class="dock-item" title="Safari" tabindex="0">
+          <div class="dock-icon safari"></div>
+        </div>
+        <div class="dock-item" title="Calendar" tabindex="0">
+          <div class="dock-icon calendar">
+            <span class="dock-cal-month">NOV</span>
+            <span class="dock-cal-day">2</span>
+          </div>
+        </div>
+        <div class="dock-item active" title="Reminders" tabindex="0">
+          <div class="dock-icon reminders"></div>
+          <span class="dock-active-dot"></span>
+        </div>
+        <div class="dock-item" title="Notes" tabindex="0">
+          <div class="dock-icon notes"></div>
+        </div>
+        <div class="dock-item" title="System Settings" tabindex="0">
+          <div class="dock-icon settings"></div>
+        </div>
+        <div class="dock-divider"></div>
+        <div class="dock-item exit-dock" id="dock-exit-btn" title="Exit to TV Home" tabindex="0">
+          <div class="dock-icon tvhome"></div>
+        </div>
+      </div>
+    </footer>
+  </main>
 
   <script src="js/app.js"></script>
 </body>

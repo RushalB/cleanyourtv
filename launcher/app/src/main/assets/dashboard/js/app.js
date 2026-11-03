@@ -241,6 +241,24 @@ function updateDashboardDate() {
     });
   }
 
+  const calMonth = $('#cal-month');
+  const calDay = $('#cal-day');
+  const menuDate = $('#mac-menu-date');
+  const dockMonth = $('.dock-cal-month');
+  const dockDay = $('.dock-cal-day');
+
+  if (calMonth) calMonth.textContent = now.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+  if (calDay) calDay.textContent = String(now.getDate());
+  if (dockMonth) dockMonth.textContent = now.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+  if (dockDay) dockDay.textContent = String(now.getDate());
+  if (menuDate) {
+    menuDate.textContent = now.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
   if (dayEl) {
     const startOfYear = new Date(now.getFullYear(), 0, 1);
     const pastDaysOfYear = (now - startOfYear) / 86400000;
@@ -366,10 +384,12 @@ function initDpadNavigation() {
 
     const items = $$('.todo-row');
     const backBtn = $('#dashboard-back-btn');
+    const returnBtn = $('#mac-return-btn');
+    const dockExit = $('#dock-exit-btn');
     const focused = document.activeElement;
 
     if (e.key === 'ArrowDown') {
-      if (focused === backBtn) {
+      if (focused === backBtn || focused === returnBtn) {
         if (items.length > 0) {
           items[0].focus();
           e.preventDefault();
@@ -379,25 +399,41 @@ function initDpadNavigation() {
         if (idx >= 0 && idx + 1 < items.length) {
           items[idx + 1].focus();
           e.preventDefault();
+        } else if (idx === items.length - 1 && dockExit) {
+          dockExit.focus();
+          e.preventDefault();
         }
       }
     } else if (e.key === 'ArrowUp') {
-      const idx = items.indexOf(focused);
-      if (idx === 0) {
-        if (backBtn) backBtn.focus();
-        e.preventDefault();
-      } else if (idx > 0) {
-        items[idx - 1].focus();
-        e.preventDefault();
+      if (focused === dockExit) {
+        if (items.length > 0) {
+          items[items.length - 1].focus();
+          e.preventDefault();
+        }
+      } else {
+        const idx = items.indexOf(focused);
+        if (idx === 0) {
+          if (backBtn) backBtn.focus();
+          e.preventDefault();
+        } else if (idx > 0) {
+          items[idx - 1].focus();
+          e.preventDefault();
+        }
       }
     } else if (e.key === 'ArrowRight') {
-      if (backBtn && focused !== backBtn) {
-        backBtn.focus();
+      if (focused === backBtn && returnBtn) {
+        returnBtn.focus();
         e.preventDefault();
+      } else {
+        const idx = items.indexOf(focused);
+        if (idx >= 0 && returnBtn) {
+          returnBtn.focus();
+          e.preventDefault();
+        }
       }
     } else if (e.key === 'ArrowLeft') {
-      if (focused === backBtn && items.length > 0) {
-        items[0].focus();
+      if (focused === returnBtn) {
+        if (backBtn) backBtn.focus();
         e.preventDefault();
       }
     }
@@ -409,6 +445,28 @@ document.addEventListener('DOMContentLoaded', () => {
   if (backBtn) {
     backBtn.addEventListener('click', closeDashboard);
     backBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13 || e.keyCode === 23) {
+        e.preventDefault();
+        closeDashboard();
+      }
+    });
+  }
+
+  const returnBtn = $('#mac-return-btn');
+  if (returnBtn) {
+    returnBtn.addEventListener('click', closeDashboard);
+    returnBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13 || e.keyCode === 23) {
+        e.preventDefault();
+        closeDashboard();
+      }
+    });
+  }
+
+  const dockExit = $('#dock-exit-btn');
+  if (dockExit) {
+    dockExit.addEventListener('click', closeDashboard);
+    dockExit.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13 || e.keyCode === 23) {
         e.preventDefault();
         closeDashboard();

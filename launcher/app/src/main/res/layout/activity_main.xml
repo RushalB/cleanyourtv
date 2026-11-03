@@ -288,60 +288,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- 2x Glanceable Date & Weather Block positioned under the clock -->
-                <LinearLayout
-                    android:id="@+id/dateWeatherBlock"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginTop="2dp"
-                    android:orientation="vertical">
-
-                    <!-- Shamsi date ("27 Mehr 1405"), shown when shamsi_date is on. -->
-                    <TextView
-                        android:id="@+id/shamsiDate"
-                        android:gravity="left"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:ellipsize="end"
-                        android:textColor="#E6FFFFFF"
-                        android:textSize="17sp"
-                        android:fontFamily="@string/font_regular"
-                        android:letterSpacing="0.02"
-                        android:includeFontPadding="false"
-                        android:visibility="gone" />
-
-                    <TextClock
-                        android:id="@+id/date"
-                        android:gravity="left"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:format12Hour="@string/date_format_home"
-                        android:format24Hour="@string/date_format_home"
-                        android:textColor="#A6FFFFFF"
-                        android:textSize="26sp"
-                        android:fontFamily="@string/font_regular"
-                        android:letterSpacing="0.08"
-                        android:textAllCaps="true" />
-
-                    <!-- Lunar date ("Lunar 13/9 · Year of the Horse"), shown when lunar_date is on. -->
-                    <TextView
-                        android:id="@+id/lunarDate"
-                        android:gravity="left"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:singleLine="true"
-                        android:ellipsize="end"
-                        android:textColor="#80FFFFFF"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/outfit_regular"
-                        android:letterSpacing="0.14"
-                        android:textAllCaps="true"
-                        android:visibility="gone" />
-                </LinearLayout>
 
             </LinearLayout>
 
@@ -428,6 +374,65 @@
                     android:text="@string/settings"
                     android:drawableStart="@drawable/ic_settings"
                     android:nextFocusDown="@+id/grid" />
+            </LinearLayout>
+
+            <!-- Date Block positioned on the right below top buttons -->
+            <LinearLayout
+                android:id="@+id/dateWeatherBlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/topButtons"
+                android:layout_alignEnd="@id/topButtons"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="6dp"
+                android:gravity="end"
+                android:orientation="vertical">
+
+                <!-- Shamsi date ("27 Mehr 1405"), shown when shamsi_date is on. -->
+                <TextView
+                    android:id="@+id/shamsiDate"
+                    android:gravity="end|right"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:textColor="#E6FFFFFF"
+                    android:textSize="17sp"
+                    android:fontFamily="@string/font_regular"
+                    android:letterSpacing="0.02"
+                    android:includeFontPadding="false"
+                    android:visibility="gone" />
+
+                <TextClock
+                    android:id="@+id/date"
+                    android:gravity="end|right"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:format12Hour="@string/date_format_home"
+                    android:format24Hour="@string/date_format_home"
+                    android:textColor="#FFFFFFFF"
+                    android:alpha="0.8"
+                    android:textSize="22sp"
+                    android:fontFamily="@font/sf_pro_display_medium"
+                    android:letterSpacing="0.08"
+                    android:textAllCaps="true" />
+
+                <!-- Lunar date ("Lunar 13/9 · Year of the Horse"), shown when lunar_date is on. -->
+                <TextView
+                    android:id="@+id/lunarDate"
+                    android:gravity="end|right"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:textColor="#80FFFFFF"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/outfit_regular"
+                    android:letterSpacing="0.14"
+                    android:textAllCaps="true"
+                    android:visibility="gone" />
             </LinearLayout>
         </RelativeLayout>
 

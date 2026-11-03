@@ -2516,21 +2516,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      * the clock's row, and the line between them goes. In Hebrew (rtl_menu_bar) the date and the clock's row sit right.
      */
     private void moveDateBelowClock() {
-        View column = (View) findViewById(R.id.date).getParent();
-        View clockRow = (View) findViewById(R.id.clock).getParent();
-        LinearLayout clockColumn = (LinearLayout) clockRow.getParent();
-        ((ViewGroup) column.getParent()).removeView(column);
-        findViewById(R.id.clockDivider).setVisibility(View.GONE);
-        // Its own width, not the column's: in Hebrew the column is only as wide as the clock.
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.topMargin = Math.round(4 * density);
-        if (getResources().getBoolean(R.bool.rtl_menu_bar)) {
-            // Date and clock flush right; the greeting stays left and follows the clock by translation.
-            lp.gravity = Gravity.RIGHT;
-            ((LinearLayout.LayoutParams) clockRow.getLayoutParams()).gravity = Gravity.RIGHT;
-        }
-        clockColumn.addView(column, clockColumn.indexOfChild(clockRow) + 1, lp);
+        // Date is positioned below top buttons on the right.
     }
 
     /** The first top-bar button after Inputs that is shown, in bar order (top_bar_apps, the network pill, ...); Settings is always there. */

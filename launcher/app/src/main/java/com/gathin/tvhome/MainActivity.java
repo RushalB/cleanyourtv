@@ -2741,7 +2741,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (now - lastWeatherFetch < 10 * 60 * 1000) return; // 10 minutes cache
         new Thread(() -> {
             try {
-                java.net.URL url = new java.net.URL("https://api.open-meteo.com/v1/forecast?latitude=41.8781&longitude=-87.6298&current=temperature_2m,weather_code&temperature_unit=fahrenheit");
+                java.net.URL url = new java.net.URL("https://api.open-meteo.com/v1/forecast?latitude=41.8781&longitude=-87.6298&current=temperature_2m,weather_code&temperature_unit=celsius");
                 java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
                 conn.setConnectTimeout(5000);
                 conn.setReadTimeout(5000);
@@ -2754,7 +2754,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     org.json.JSONObject json = new org.json.JSONObject(sb.toString());
                     org.json.JSONObject cur = json.getJSONObject("current");
                     double temp = cur.getDouble("temperature_2m");
-                    String weatherStr = Math.round(temp) + "°F";
+                    String weatherStr = Math.round(temp) + "°C";
                     lastWeatherFetch = System.currentTimeMillis();
                     handler.post(() -> {
                         if (tv != null) tv.setText(weatherStr);

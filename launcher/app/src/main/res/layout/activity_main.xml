@@ -284,7 +284,7 @@
                             android:fontFamily="@string/font_medium"
                             android:letterSpacing="0.02"
                             android:includeFontPadding="false"
-                            android:text="58°F" />
+                            android:text="14°C" />
                     </LinearLayout>
                 </LinearLayout>
 

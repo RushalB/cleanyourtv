@@ -338,7 +338,7 @@ async function fetchWeather() {
     const lon = -87.6416;
     const city = 'Chicago';
 
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,is_day,weather_code&temperature_unit=fahrenheit&timezone=auto`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,is_day,weather_code&temperature_unit=celsius&timezone=auto`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -358,8 +358,8 @@ async function fetchWeather() {
     console.warn('Weather fetch failed:', err);
     if (!cached) {
       renderWeather({
-        temp: 51,
-        feelsLike: 46,
+        temp: 14,
+        feelsLike: 12,
         isDay: false,
         code: 0,
         city: 'Chicago'
